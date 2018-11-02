@@ -51,7 +51,7 @@ void			parse_arguments(int ac, char **av, t_vm *vm)
 	vm->num_of_players = count_players;
 }
 
-t_pc				*create_new_pc(t_vm *vm, unsigned int player_id, unsigned int position)
+t_pc				*create_new_pc(t_vm *vm, t_player *player, unsigned int position)
 {
 	t_pc			*new_node;
 
@@ -60,7 +60,8 @@ t_pc				*create_new_pc(t_vm *vm, unsigned int player_id, unsigned int position)
 		error_exit("Error during creating new process", -1);
 	ft_bzero(new_node, sizeof(t_pc));
 	ft_bzero(new_node->reg, REG_NUMBER);
-	new_node->player_id = player_id;
+	new_node->reg[0] = player->player_number;
+	new_node->player_id = player->id;
 	new_node->cur_pos = position;
 	new_node->cycles_to_go = -1;
 	if (vm->pc_head)
@@ -87,7 +88,7 @@ void				position_players(t_vm *vm)
 	{
 		j = -1;
 		tmp_head = NULL;
-		tmp_head = create_new_pc(vm, vm->players[count_players].id, (i + 1));
+		tmp_head = create_new_pc(vm, &vm->players[count_players], (i + 1));
 
 		//was before --- with reverse order
 		// if (new_pc == NULL)
@@ -230,11 +231,10 @@ unsigned int	ft_args_get(int64_t *i, int label, t_byte *map)
 unsigned int		get_arguments(t_vm *vm, unsigned int *cur_pos, int label)
 {
 	unsigned int	ret;
-	unsigned char	arg;
 
-	arg = vm->map[++(*cur_pos) % MEM_SIZE];
+	ret = 0;
 	if (label == 1)
-		ret = arg;
+		ret = vm->map[++(*cur_pos) % MEM_SIZE];
 	else if (label == 2)
 		ret = (vm->map[++(*cur_pos) % MEM_SIZE] << 8) | (vm->map[++(*cur_pos) % MEM_SIZE]);
 	else if (label == 4)
@@ -247,20 +247,21 @@ unsigned int		get_arguments(t_vm *vm, unsigned int *cur_pos, int label)
 	return (ret);
 }
 
-void				live_op(t_vm *vm, unsigned int *cur_pos, t_pc *process)
+void				live_op(t_vm *vm, t_pc *process)
 {
 	// unsigned int 	dir_arg[4];
 	char			args_array[1];//mb 4 of them ??? or 1 
 	unsigned int	max_args;
 	unsigned char	codage;
 	unsigned char	check;
-
+	unsigned int 	tmp_pos;
 	unsigned int	temp;
 	unsigned int	check_int;
 
 	max_args = 1;//mb del it and put value right to the function ???
 	process->cycles_to_go = 10;
-	codage = vm->map[++(*cur_pos)];
+	tmp_pos = process->cur_pos;
+	codage = vm->map[++tmp_pos];
 	ft_bzero(&args_array, 3);
 	// decode_args(args_array, codage, max_args);
 	if (codage)//do we need nulls in other 6 bits?
@@ -275,13 +276,14 @@ void				live_op(t_vm *vm, unsigned int *cur_pos, t_pc *process)
 		error_exit("Error with codage in live_op\n", -1);
 	process->alive = 1;
 	check_int = vm->players[process->player_id].player_number;
-	temp = get_arguments(vm, ++(cur_pos), 4);
+	temp = get_arguments(vm, &tmp_pos, 4);
 	if (check_int == temp)
 		vm->players[process->player_id].alives++;
 	process->cycles_to_go = -1;
+	process->cur_pos = tmp_pos + 1;
 }
 
-void				and_op(t_vm *vm, unsigned int *cur_pos, t_pc *process)//if needed could del int cus its in ext pointer
+void				and_op(t_vm *vm, t_pc *process)//if needed could del int cus its in ext pointer
 {
 	char			args_array[3];//mb 4 of them ???
 	unsigned int	max_args;
@@ -290,9 +292,11 @@ void				and_op(t_vm *vm, unsigned int *cur_pos, t_pc *process)//if needed could 
 	// unsigned int	temp;
 	unsigned int 	args[2];
 	unsigned int 	i;
+		unsigned int 	tmp_pos;
 
 	max_args = 3;//mb del it and put value right to the function ???
-	codage = vm->map[(*cur_pos) + 1];
+	tmp_pos = process->cur_pos;
+	codage = vm->map[++tmp_pos];
 	ft_bzero(&args_array, 3);
 	// decode_args(args_array, codage, max_args);
 	i = 0;
@@ -311,27 +315,27 @@ void				and_op(t_vm *vm, unsigned int *cur_pos, t_pc *process)//if needed could 
 	// if (!codage)
 	//process->cur_pos += 2;//go to next? or like below?
 	if (!args_array[0] || !args_array[1] || args_array[2] != REG_CODE)
-		process->cur_pos += 5;
+		tmp_pos += 5;
 	else//there would be code so mb make it another func? || piece of code above?
 	{
 		if (args_array[0] == REG_CODE)
 		{
-			args[0] = get_arguments(vm, cur_pos, 1);
+			args[0] = get_arguments(vm, &tmp_pos, 1);
 			process->reg[0] = args[0];
 		}
 		else if (args_array[0] == DIR_CODE)
-			args[0] = get_arguments(vm, cur_pos, 4);
+			args[0] = get_arguments(vm, &tmp_pos, 4);
 		else if (args_array[0] == IND_CODE)
-			args[0] = get_arguments(vm, cur_pos, 2);
+			args[0] = get_arguments(vm, &tmp_pos, 2);
 		if (args_array[1] == REG_CODE)
 		{
-			process->reg[1] = get_arguments(vm, cur_pos, 1);
+			process->reg[1] = get_arguments(vm, &tmp_pos, 1);
 			args[1] = process->reg[1];
 		}
 		else if (args_array[1] == DIR_CODE)
-			args[1] = get_arguments(vm, cur_pos, 4);
+			args[1] = get_arguments(vm, &tmp_pos, 4);
 		else if (args_array[1] == IND_CODE)
-			args[1] = get_arguments(vm, cur_pos, 2);
+			args[1] = get_arguments(vm, &tmp_pos, 2);
 		if (args_array[2] == REG_CODE)
 			process->reg[2] = args[0] & args[1];
 		if (process->reg[2] == 0)
@@ -340,22 +344,23 @@ void				and_op(t_vm *vm, unsigned int *cur_pos, t_pc *process)//if needed could 
 			process->carry = 0;
 	}
 	process->cycles_to_go = -1;
+	process->cur_pos = tmp_pos + 1;
 }
 
-void				zjmp_op(t_vm *vm, unsigned int *cur_pos, t_pc *process)
+void				zjmp_op(t_vm *vm, t_pc *process)
 {
-	char			args_array[1];//mb 4 of them ??? or 1
+	// char			args_array[1];//mb 4 of them ??? or 1
 	// unsigned char	codage;
 	// unsigned char	check;
-
+	unsigned int 	tmp_pos;
 	unsigned int	check_int;
 
 	process->cycles_to_go = 10;
-
+	tmp_pos = process->cur_pos;
 	/****/
 	//handle cur_pos step!
 	// codage = vm->map[++(*cur_pos)];
-	ft_bzero(&args_array, 3);
+	// ft_bzero(&args_array, 3);
 	// decode_args(args_array, codage, max_args);
 	// if (codage)//do we need nulls in other 6 bits?
 	// {
@@ -367,31 +372,36 @@ void				zjmp_op(t_vm *vm, unsigned int *cur_pos, t_pc *process)
 	// }
 	// else
 	// 	error_exit("Error with codage in zjmp_op\n", -1);
-	if (args_array[0] == DIR_CODE && process->carry == 1)
+	if (process->carry == 1)
 	{
-		check_int = get_arguments(vm, cur_pos, 2);
-		(*cur_pos) += (check_int % IDX_MOD);
+		check_int = get_arguments(vm, &tmp_pos, 2);
+		tmp_pos += (check_int % IDX_MOD);
 	}
 	//what if carry doesnt == 1 - what should we do?
 	process->cycles_to_go = -1;
+	process->cur_pos = tmp_pos + 1;
 }
 
 // undone fucking fuck !
-void				sti_op(t_vm *vm, unsigned int *cur_pos, t_pc *process)
+void				sti_op(t_vm *vm, t_pc *process)
 {
 	char			args_array[3];//mb 4 of them ???
 	unsigned int	max_args;
 	unsigned char	codage;
 	unsigned char	check;
-	// unsigned int	temp;
+	unsigned int	temp;
 	unsigned int	args[3];
-	unsigned int 	i;
+	// short			short_args[3];
+	unsigned int	i;
 
-	unsigned int 	tmp_cur_pos;
+	unsigned int	tmp_cur_pos;
+	unsigned int	tmp_pos;
+	int				sum;
 
 
 	max_args = 3;//mb del it and put value right to the function ???
-	codage = vm->map[(*cur_pos) + 1];	
+	tmp_pos = process->cur_pos;
+	codage = vm->map[++tmp_pos];	
 	ft_bzero(&args_array, 3);
 	// decode_args(args_array, codage, max_args);
 	i = 0;
@@ -407,40 +417,59 @@ void				sti_op(t_vm *vm, unsigned int *cur_pos, t_pc *process)
 		codage <<= 2;
 		i++;
 	}
-	if (!args_array[2] || !args_array[1] || args_array[0] != REG_CODE)
-		process->cur_pos += 5;
+	//check if we need this if   (IMHO we need new func to move our procces cur_pos correctly)
+	if (!args_array[2] || !args_array[1] || args_array[0] != REG_CODE)//imho - invalid
+		tmp_pos += 5;
 	else
 	{
 		if (args_array[0] == REG_CODE)
 		{
-			process->reg[0] = get_arguments(vm, cur_pos, 1);	
+			args[0] = (unsigned char)get_arguments(vm, &tmp_pos, 1);	
 		}
 		if (args_array[1] == REG_CODE)
 		{
-			process->reg[1] = get_arguments(vm, cur_pos, 1);
+			process->reg[1] = (unsigned char)get_arguments(vm, &tmp_pos, 1);
 			args[1] = process->reg[1];
 		}
 		else if (args_array[1] == DIR_CODE)
-			args[1] = get_arguments(vm, cur_pos, 2);
-		else if (args_array[1] == IND_CODE)
+			args[1] = (short)get_arguments(vm, &tmp_pos, 2);
+		else if (args_array[1] == IND_CODE)//almost sure something wrong with it!
 		{
 			//по карте перемещаемся на позицию ... и берем там аргумент
-			tmp_cur_pos = (get_arguments(vm, cur_pos, 2) % IDX_MOD);
+			tmp_cur_pos = (short)get_arguments(vm, &tmp_pos, 2);
+			tmp_cur_pos %= IDX_MOD;
 			args[1] = get_arguments(vm, &(tmp_cur_pos), 4);
 		}
 		if (args_array[2] == REG_CODE)
 		{
-			process->reg[2] = get_arguments(vm, cur_pos, 1);
+			process->reg[2] = (unsigned char)get_arguments(vm, &tmp_pos, 1);
 			args[2] = process->reg[2];
 		}
 		else if (args_array[2] == DIR_CODE)
-			args[2] = get_arguments(vm, cur_pos, 2);
+			args[2] = (short)get_arguments(vm, &tmp_pos, 2);
 	
 		// if (args_array[1] == IND_CODE)
 		// 	vm->map[cur_pos + ((args[1] + args[2]) % IDX_MOD)] = process->reg[0];
 		// else
-			vm->map[(*cur_pos) + ((args[1] + args[2]) % IDX_MOD)] = process->reg[0];
+		/*was like this */
+		// vm->map[(*cur_pos) + ((args[1] + args[2]) % IDX_MOD)] = process->reg[0];
+
+
+		/* first method */
+		sum = (args[1] + args[2]);
+		temp = (process->cur_pos + (sum % IDX_MOD) % MEM_SIZE);
+		unsigned int array = process->reg[args[0] - 1];
+		i = 0;
+		while (i < 4)
+		{
+			vm->map[temp + i] = ((unsigned char *)&array)[3 - i];
+			i++;
+		}
+		//this is a test!
+		// vm->map[temp + i] = args[1];
+		// vm->map[temp + i + 1] = args[2];
 	}
+	process->cur_pos = tmp_pos + 1;//mb need to add 1 if second arg is T_IND ?
 	process->cycles_to_go = -1;
 }
 
@@ -454,7 +483,7 @@ void				feel_n_fill_pc(t_vm *vm, t_pc *process)//just 'zork.cor' for now
 	tmp = vm->map[process->cur_pos];
 	a = tmp;
 	if (a == 1)
-		live_op(vm, &process->cur_pos, process);
+		live_op(vm, process);
 	// else if (a == 2)
 	// 	ld_op(vm, process->cur_pos, process);
 	// else if (a == 3)
@@ -464,17 +493,17 @@ void				feel_n_fill_pc(t_vm *vm, t_pc *process)//just 'zork.cor' for now
 	// else if (a == 5)
 	// 	sub_op(vm, process->cur_pos), process;
 	else if (a == 6)
-		and_op(vm, &process->cur_pos, process);
+		and_op(vm, process);
 	// else if (a == 7)
 	// 	or_op(vm, process->cur_pos, process);
 	// else if (a == 8)
 	// 	xor_op(vm, process->cur_pos, process);
 	else if (a == 9)
-		zjmp_op(vm, &process->cur_pos, process);
+		zjmp_op(vm,  process);
 	// else if (a == 10)
 	// 	ldi_op(vm, process->cur_pos, process);
 	else if (a == 11)
-		sti_op(vm, &process->cur_pos, process);
+		sti_op(vm, process);
 // 	else if (a == 12)
 // 		fork_op(vm, process->cur_pos, process);
 // 	else if (a == 13)
