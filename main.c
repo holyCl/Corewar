@@ -247,10 +247,33 @@ unsigned int		get_arguments(t_vm *vm, unsigned int *cur_pos, int label)
 	return (ret);
 }
 
+void				decodage_opcode(unsigned char codage, int *args_array, unsigned int max_args)
+{
+	unsigned char	check;
+	unsigned int 	i;
+
+	i = 0;
+	while (codage && i < max_args)
+	{
+		check = codage & 192;
+		if (check == 64)
+			args_array[i] = REG_CODE;
+		else if (check == 128)
+			args_array[i] = DIR_CODE;
+		else if (check == 192)
+			args_array[i] = IND_CODE;
+		codage <<= 2;
+		i++;
+	}
+	// printf("%d\n", args_array[0]);
+	// printf("%d\n", args_array[1]);
+	// printf("%d\n", args_array[2]);
+}
+
 void				live_op(t_vm *vm, t_pc *process)
 {
 	// unsigned int 	dir_arg[4];
-	char			args_array[1];//mb 4 of them ??? or 1 
+	int			args_array[1];//mb 4 of them ??? or 1 
 	unsigned int	max_args;
 	unsigned char	codage;
 	unsigned char	check;
@@ -292,13 +315,12 @@ void				and_op(t_vm *vm, t_pc *process)//if needed could del int cus its in ext 
 	// unsigned int	temp;
 	unsigned int 	args[2];
 	unsigned int 	i;
-		unsigned int 	tmp_pos;
+	unsigned int 	tmp_pos;
 
 	max_args = 3;//mb del it and put value right to the function ???
 	tmp_pos = process->cur_pos;
 	codage = vm->map[++tmp_pos];
 	ft_bzero(&args_array, 3);
-	// decode_args(args_array, codage, max_args);
 	i = 0;
 	while (codage && i < max_args)
 	{
@@ -319,19 +341,13 @@ void				and_op(t_vm *vm, t_pc *process)//if needed could del int cus its in ext 
 	else//there would be code so mb make it another func? || piece of code above?
 	{
 		if (args_array[0] == REG_CODE)
-		{
 			args[0] = get_arguments(vm, &tmp_pos, 1);
-			process->reg[0] = args[0];
-		}
 		else if (args_array[0] == DIR_CODE)
 			args[0] = get_arguments(vm, &tmp_pos, 4);
 		else if (args_array[0] == IND_CODE)
 			args[0] = get_arguments(vm, &tmp_pos, 2);
 		if (args_array[1] == REG_CODE)
-		{
-			process->reg[1] = get_arguments(vm, &tmp_pos, 1);
-			args[1] = process->reg[1];
-		}
+			args[1] = get_arguments(vm, &tmp_pos, 1);
 		else if (args_array[1] == DIR_CODE)
 			args[1] = get_arguments(vm, &tmp_pos, 4);
 		else if (args_array[1] == IND_CODE)
@@ -382,96 +398,89 @@ void				zjmp_op(t_vm *vm, t_pc *process)
 	process->cur_pos = tmp_pos + 1;
 }
 
-// undone fucking fuck !
-void				sti_op(t_vm *vm, t_pc *process)
-{
-	char			args_array[3];//mb 4 of them ???
-	unsigned int	max_args;
-	unsigned char	codage;
-	unsigned char	check;
-	unsigned int	temp;
-	unsigned int	args[3];
-	// short			short_args[3];
-	unsigned int	i;
+// int					sti_validation(int *args, unsigned int *tmp_pos)//check it with invalid argument!
+// {
+// 	unsigned int	step;
+// 	unsigned int	i;
 
-	unsigned int	tmp_cur_pos;
-	unsigned int	tmp_pos;
-	int				sum;
+// 	step = 0;
+// 	if (args[0] == REG_CODE && 
+// 		(args[1] == REG_CODE || args[1] == DIR_CODE || args[1] == IND_CODE) &&
+// 		(args[2] == REG_CODE || args[2] == DIR_CODE))
+// 		return (1);
+// 	else
+// 	{
+// 		i = 0;
+// 		while (i < 3)
+// 		{
+// 			if (args[i] == REG_CODE)
+// 				step += 1;
+// 			else if (args[i] == DIR_CODE || args[i] == IND_CODE)
+// 				step += 2;
+// 			i++;
+// 		}
+// 		(*tmp_pos) += step;
+// 		return (0);
+// 	}
+// }
 
+// void				get_all_arguments_sti(t_vm *vm, int *args_array, unsigned int *args, unsigned int *tmp_pos)
+// {
+// 	unsigned int tmp_cur_pos;
 
-	max_args = 3;//mb del it and put value right to the function ???
-	tmp_pos = process->cur_pos;
-	codage = vm->map[++tmp_pos];	
-	ft_bzero(&args_array, 3);
-	// decode_args(args_array, codage, max_args);
-	i = 0;
-	while (codage && i < max_args)
-	{
-		check = codage & 192;
-		if (check == 64)
-			args_array[i] = REG_CODE;
-		else if (check == 128)
-			args_array[i] = DIR_CODE;
-		else if (check == 192)
-			args_array[i] = IND_CODE;
-		codage <<= 2;
-		i++;
-	}
-	//check if we need this if   (IMHO we need new func to move our procces cur_pos correctly)
-	if (!args_array[2] || !args_array[1] || args_array[0] != REG_CODE)//imho - invalid
-		tmp_pos += 5;
-	else
-	{
-		if (args_array[0] == REG_CODE)
-		{
-			args[0] = (unsigned char)get_arguments(vm, &tmp_pos, 1);	
-		}
-		if (args_array[1] == REG_CODE)
-		{
-			process->reg[1] = (unsigned char)get_arguments(vm, &tmp_pos, 1);
-			args[1] = process->reg[1];
-		}
-		else if (args_array[1] == DIR_CODE)
-			args[1] = (short)get_arguments(vm, &tmp_pos, 2);
-		else if (args_array[1] == IND_CODE)//almost sure something wrong with it!
-		{
-			//по карте перемещаемся на позицию ... и берем там аргумент
-			tmp_cur_pos = (short)get_arguments(vm, &tmp_pos, 2);
-			tmp_cur_pos %= IDX_MOD;
-			args[1] = get_arguments(vm, &(tmp_cur_pos), 4);
-		}
-		if (args_array[2] == REG_CODE)
-		{
-			process->reg[2] = (unsigned char)get_arguments(vm, &tmp_pos, 1);
-			args[2] = process->reg[2];
-		}
-		else if (args_array[2] == DIR_CODE)
-			args[2] = (short)get_arguments(vm, &tmp_pos, 2);
-	
-		// if (args_array[1] == IND_CODE)
-		// 	vm->map[cur_pos + ((args[1] + args[2]) % IDX_MOD)] = process->reg[0];
-		// else
-		/*was like this */
-		// vm->map[(*cur_pos) + ((args[1] + args[2]) % IDX_MOD)] = process->reg[0];
+// 	if (args_array[0] == REG_CODE)
+// 		args[0] = (unsigned char)get_arguments(vm, tmp_pos, 1);
+// 	if (args_array[1] == REG_CODE)
+// 		args[1] = (unsigned char)get_arguments(vm, tmp_pos, 1);
+// 	else if (args_array[1] == DIR_CODE)
+// 		args[1] = (short)get_arguments(vm, tmp_pos, 2);
+// 	else if (args_array[1] == IND_CODE)//almost sure something wrong with it!
+// 	{
+// 		//по карте перемещаемся на позицию ... и берем там аргумент
+// 		tmp_cur_pos = (short)get_arguments(vm, tmp_pos, 2);
+// 		tmp_cur_pos %= IDX_MOD;
+// 		args[1] = get_arguments(vm, &(tmp_cur_pos), 4);
+// 	}
+// 	if (args_array[2] == REG_CODE)
+// 		args[2] = (unsigned char)get_arguments(vm, tmp_pos, 1);
+// 	else if (args_array[2] == DIR_CODE)
+// 		args[2] = (short)get_arguments(vm, tmp_pos, 2);
+// }
 
+// void				sti_op(t_vm *vm, t_pc *process)
+// {
+// 	int				args_array[3];//was char
+// 	unsigned char	codage;
+// 	unsigned int	args[4];
+// 	unsigned int	i;
+// 	unsigned int	tmp_pos;
+// 	unsigned int	array;
+// 	// unsigned int	sum;
 
-		/* first method */
-		sum = (args[1] + args[2]);
-		temp = (process->cur_pos + (sum % IDX_MOD) % MEM_SIZE);
-		unsigned int array = process->reg[args[0] - 1];
-		i = 0;
-		while (i < 4)
-		{
-			vm->map[temp + i] = ((unsigned char *)&array)[3 - i];
-			i++;
-		}
-		//this is a test!
-		// vm->map[temp + i] = args[1];
-		// vm->map[temp + i + 1] = args[2];
-	}
-	process->cur_pos = tmp_pos + 1;//mb need to add 1 if second arg is T_IND ?
-	process->cycles_to_go = -1;
-}
+// 	tmp_pos = process->cur_pos;
+// 	codage = vm->map[++tmp_pos];
+// 	ft_bzero(&args_array, 3);
+// 	decodage_opcode(codage, args_array, 3);//mb add this line to sti_validation?
+// 	if (sti_validation(args_array, &tmp_pos))
+// 	{
+// 		get_all_arguments_sti(vm, args_array, args, &tmp_pos);
+// 		/* first method */
+// 		// sum = ;
+// 		args[3] = (process->cur_pos + ((args[1] + args[2]) % IDX_MOD) % MEM_SIZE);
+// 		array = process->reg[args[0] - 1];
+// 		i = 0;
+// 		while (i < 4)
+// 		{
+// 			vm->map[args[3] + i] = ((unsigned char *)&array)[3 - i];
+// 			i++;
+// 		}
+// 		//this is a test!
+// 		// vm->map[temp + i] = args[1];
+// 		// vm->map[temp + i + 1] = args[2];
+// 	}
+// 	process->cur_pos = tmp_pos + 1;//mb need to add 1 if second arg is T_IND ?
+// 	process->cycles_to_go = -1;
+// }
 
 void				feel_n_fill_pc(t_vm *vm, t_pc *process)//just 'zork.cor' for now
 {

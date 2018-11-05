@@ -55,3 +55,6 @@ typedef struct		s_vm
 
 void				parse_all_players(int ac, char **av, t_vm *vm);
 void				error_exit(char *str, int fd);
+void				sti_op(t_vm *vm, t_pc *process);
+unsigned int		get_arguments(t_vm *vm, unsigned int *cur_pos, int label);
+void				decodage_opcode(unsigned char codage, int *args_array, unsigned int max_args);
