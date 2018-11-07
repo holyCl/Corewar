@@ -64,6 +64,7 @@ t_pc				*create_new_pc(t_vm *vm, t_player *player, unsigned int position)
 	new_node->player_id = player->id;
 	new_node->cur_pos = position;
 	new_node->cycles_to_go = -1;
+	new_node->alive = 1;
 	if (vm->pc_head)
 		new_node->next = vm->pc_head;
 	vm->pc_head = new_node;
@@ -129,105 +130,6 @@ void				vm_init(t_vm *vm)
 	vm->cycles_to_die = CYCLE_TO_DIE;
 }
 
-
-//
-/*
-unsigned int		reverse_bytes(unsigned int data, char bytes)
-{
-	unsigned int	res;
-
-	res = data;
-	if (bytes == 4)
-	{
-		((unsigned char *)&res)[0] = ((unsigned char *)&data)[3];
-		((unsigned char *)&res)[1] = ((unsigned char *)&data)[2];
-		((unsigned char *)&res)[2] = ((unsigned char *)&data)[1];
-		((unsigned char *)&res)[3] = ((unsigned char *)&data)[0];
-	}
-	else if (bytes == 2)
-	{
-		((unsigned char *)&res)[0] = ((unsigned char *)&data)[1];
-		((unsigned char *)&res)[1] = ((unsigned char *)&data)[0];
-	}
-	return (res);
-}
-
-*
-** This function gets a value of some sequence of bytes
-** size of which specified in arg_size and returns reversed value.
-*
-
-unsigned int		get_arg(unsigned int i, char arg_size)
-{
-	unsigned int	arg;
-	unsigned char	str[4];
-	unsigned char	j;
-
-	j = 0;
-	arg = 0;
-	ft_bzero(str, 4);
-	while (j < arg_size)
-	{
-		(i >= MEM_SIZE) ? (i = 0) : 0;
-		str[j] = g_map[i];
-		j++;
-		i++;
-	}
-	((unsigned char *)&arg)[0] = ((unsigned char *)&str)[0];
-	((unsigned char *)&arg)[1] = ((unsigned char *)&str)[1];
-	((unsigned char *)&arg)[2] = ((unsigned char *)&str)[2];
-	((unsigned char *)&arg)[3] = ((unsigned char *)&str)[3];
-	return (reverse_bytes(arg, arg_size));
-}
-
-*/
-
-//opavliuk`s and co function!
-/*
-void				decode_args(char *arg_array, unsigned char codage,
-							unsigned int max_args_num)
-{
-	unsigned char	check;
-	unsigned int	i;
-
-	i = 0;
-	while (codage && i < max_args_num)
-	{
-		check = codage & 192;
-		// if (check == 64)
-		// 	arg_array[i] = REG_CODE;
-		// else if (check == 128)
-		// 	arg_array[i] = DIR_CODE;
-		// else if (check = 192)
-		// 	arg_array[i] = IND_CODE;
-		// codage <<= 2;
-		i++;
-	}
-}*/
-
-//atlekbai function
-/*
-
-unsigned int	ft_args_get(int64_t *i, int label, t_byte *map)
-{
-	unsigned int	arg;
-
-	arg = 0;
-	if (label == 1)
-		arg = map[++(*i) % MEM_SIZE];
-	else if (label == 2)
-		arg = (map[++(*i) % MEM_SIZE] << 8) | map[++(*i) % MEM_SIZE];
-	else if (label == 3)
-		arg = (map[++(*i) % MEM_SIZE] << 16) | (map[++(*i) % MEM_SIZE] << 8)
-		| map[++(*i) % MEM_SIZE];
-	else if (label == 4)
-		arg = (map[++(*i) % MEM_SIZE] << 24) | (map[++(*i) % MEM_SIZE] << 16)
-		| (map[++(*i) % MEM_SIZE] << 8) | map[++(*i) % MEM_SIZE];
-	return (arg);
-}
-
-*/
-
 unsigned int		get_arguments(t_vm *vm, unsigned int *cur_pos, int label)
 {
 	unsigned int	ret;
@@ -242,7 +144,7 @@ unsigned int		get_arguments(t_vm *vm, unsigned int *cur_pos, int label)
 		ret = (vm->map[++(*cur_pos) % MEM_SIZE] << 24) | (vm->map[++(*cur_pos) % MEM_SIZE] << 16) | 
 		(vm->map[++(*cur_pos) % MEM_SIZE] << 8) | (vm->map[++(*cur_pos) % MEM_SIZE]);
 	}
-	else//mb error?
+	else
 		ret = 0;
 	return (ret);
 }
@@ -250,7 +152,7 @@ unsigned int		get_arguments(t_vm *vm, unsigned int *cur_pos, int label)
 void				decodage_opcode(unsigned char codage, int *args_array, unsigned int max_args)
 {
 	unsigned char	check;
-	unsigned int 	i;
+	unsigned int	i;
 
 	i = 0;
 	while (codage && i < max_args)
@@ -270,97 +172,28 @@ void				decodage_opcode(unsigned char codage, int *args_array, unsigned int max_
 	// printf("%d\n", args_array[2]);
 }
 
-void				live_op(t_vm *vm, t_pc *process)
+void				live_op(t_vm *vm, t_pc *process, unsigned int cycles_count)//“A process shows that player X (champion_name) is alive"
 {
-	// unsigned int 	dir_arg[4];
-	int			args_array[1];//mb 4 of them ??? or 1 
-	unsigned int	max_args;
-	unsigned char	codage;
-	unsigned char	check;
-	unsigned int 	tmp_pos;
+	unsigned int	tmp_pos;
 	unsigned int	temp;
 	unsigned int	check_int;
 
-	max_args = 1;//mb del it and put value right to the function ???
-	process->cycles_to_go = 10;
 	tmp_pos = process->cur_pos;
-	codage = vm->map[++tmp_pos];
-	ft_bzero(&args_array, 3);
 	// decode_args(args_array, codage, max_args);
-	if (codage)//do we need nulls in other 6 bits?
-	{
-		check = codage & 192;
-		if (check == 128)
-			args_array[0] = DIR_CODE;
-		else
-			error_exit("Invalid argument type in `live`.\n", -1);
-	}
-	else
-		error_exit("Error with codage in live_op\n", -1);
 	process->alive = 1;
 	check_int = vm->players[process->player_id].player_number;
 	temp = get_arguments(vm, &tmp_pos, 4);
+	// printf("live arg=%u\n", temp);
 	if (check_int == temp)
+	{
+		// ft_printf("A process shows that player %d (%s) is alive\n", 
+		// 	vm->players[process->player_id].id, vm->players[process->player_id].name);
 		vm->players[process->player_id].alives++;
-	process->cycles_to_go = -1;
-	process->cur_pos = tmp_pos + 1;
-}
-
-void				and_op(t_vm *vm, t_pc *process)//if needed could del int cus its in ext pointer
-{
-	char			args_array[3];//mb 4 of them ???
-	unsigned int	max_args;
-	unsigned char	codage;
-	unsigned char	check;
-	// unsigned int	temp;
-	unsigned int 	args[2];
-	unsigned int 	i;
-	unsigned int 	tmp_pos;
-
-	max_args = 3;//mb del it and put value right to the function ???
-	tmp_pos = process->cur_pos;
-	codage = vm->map[++tmp_pos];
-	ft_bzero(&args_array, 3);
-	i = 0;
-	while (codage && i < max_args)
-	{
-		check = codage & 192;
-		if (check == 64)
-			args_array[i] = REG_CODE;
-		else if (check == 128)
-			args_array[i] = DIR_CODE;
-		else if (check == 192)
-			args_array[i] = IND_CODE;
-		codage <<= 2;
-		i++;
+		vm->players[process->player_id].last_cycle_alive = cycles_count;
+		vm->last_player_alive_id = process->player_id;
 	}
-	// if (!codage)
-	//process->cur_pos += 2;//go to next? or like below?
-	if (!args_array[0] || !args_array[1] || args_array[2] != REG_CODE)
-		tmp_pos += 5;
-	else//there would be code so mb make it another func? || piece of code above?
-	{
-		if (args_array[0] == REG_CODE)
-			args[0] = get_arguments(vm, &tmp_pos, 1);
-		else if (args_array[0] == DIR_CODE)
-			args[0] = get_arguments(vm, &tmp_pos, 4);
-		else if (args_array[0] == IND_CODE)
-			args[0] = get_arguments(vm, &tmp_pos, 2);
-		if (args_array[1] == REG_CODE)
-			args[1] = get_arguments(vm, &tmp_pos, 1);
-		else if (args_array[1] == DIR_CODE)
-			args[1] = get_arguments(vm, &tmp_pos, 4);
-		else if (args_array[1] == IND_CODE)
-			args[1] = get_arguments(vm, &tmp_pos, 2);
-		if (args_array[2] == REG_CODE)
-			process->reg[2] = args[0] & args[1];
-		if (process->reg[2] == 0)
-			process->carry = 1;
-		else
-			process->carry = 0;
-	}
-	process->cycles_to_go = -1;
 	process->cur_pos = tmp_pos + 1;
+	process->cycles_to_go = -1;
 }
 
 void				zjmp_op(t_vm *vm, t_pc *process)
@@ -368,12 +201,11 @@ void				zjmp_op(t_vm *vm, t_pc *process)
 	// char			args_array[1];//mb 4 of them ??? or 1
 	// unsigned char	codage;
 	// unsigned char	check;
-	unsigned int 	tmp_pos;
+	unsigned int	tmp_pos;
 	unsigned int	check_int;
 
-	process->cycles_to_go = 10;
 	tmp_pos = process->cur_pos;
-	/****/
+	/****/ 
 	//handle cur_pos step!
 	// codage = vm->map[++(*cur_pos)];
 	// ft_bzero(&args_array, 3);
@@ -394,96 +226,12 @@ void				zjmp_op(t_vm *vm, t_pc *process)
 		tmp_pos += (check_int % IDX_MOD);
 	}
 	//what if carry doesnt == 1 - what should we do?
-	process->cycles_to_go = -1;
 	process->cur_pos = tmp_pos + 1;
+	process->cycles_to_go = -1;
 }
 
-// int					sti_validation(int *args, unsigned int *tmp_pos)//check it with invalid argument!
-// {
-// 	unsigned int	step;
-// 	unsigned int	i;
-
-// 	step = 0;
-// 	if (args[0] == REG_CODE && 
-// 		(args[1] == REG_CODE || args[1] == DIR_CODE || args[1] == IND_CODE) &&
-// 		(args[2] == REG_CODE || args[2] == DIR_CODE))
-// 		return (1);
-// 	else
-// 	{
-// 		i = 0;
-// 		while (i < 3)
-// 		{
-// 			if (args[i] == REG_CODE)
-// 				step += 1;
-// 			else if (args[i] == DIR_CODE || args[i] == IND_CODE)
-// 				step += 2;
-// 			i++;
-// 		}
-// 		(*tmp_pos) += step;
-// 		return (0);
-// 	}
-// }
-
-// void				get_all_arguments_sti(t_vm *vm, int *args_array, unsigned int *args, unsigned int *tmp_pos)
-// {
-// 	unsigned int tmp_cur_pos;
-
-// 	if (args_array[0] == REG_CODE)
-// 		args[0] = (unsigned char)get_arguments(vm, tmp_pos, 1);
-// 	if (args_array[1] == REG_CODE)
-// 		args[1] = (unsigned char)get_arguments(vm, tmp_pos, 1);
-// 	else if (args_array[1] == DIR_CODE)
-// 		args[1] = (short)get_arguments(vm, tmp_pos, 2);
-// 	else if (args_array[1] == IND_CODE)//almost sure something wrong with it!
-// 	{
-// 		//по карте перемещаемся на позицию ... и берем там аргумент
-// 		tmp_cur_pos = (short)get_arguments(vm, tmp_pos, 2);
-// 		tmp_cur_pos %= IDX_MOD;
-// 		args[1] = get_arguments(vm, &(tmp_cur_pos), 4);
-// 	}
-// 	if (args_array[2] == REG_CODE)
-// 		args[2] = (unsigned char)get_arguments(vm, tmp_pos, 1);
-// 	else if (args_array[2] == DIR_CODE)
-// 		args[2] = (short)get_arguments(vm, tmp_pos, 2);
-// }
-
-// void				sti_op(t_vm *vm, t_pc *process)
-// {
-// 	int				args_array[3];//was char
-// 	unsigned char	codage;
-// 	unsigned int	args[4];
-// 	unsigned int	i;
-// 	unsigned int	tmp_pos;
-// 	unsigned int	array;
-// 	// unsigned int	sum;
-
-// 	tmp_pos = process->cur_pos;
-// 	codage = vm->map[++tmp_pos];
-// 	ft_bzero(&args_array, 3);
-// 	decodage_opcode(codage, args_array, 3);//mb add this line to sti_validation?
-// 	if (sti_validation(args_array, &tmp_pos))
-// 	{
-// 		get_all_arguments_sti(vm, args_array, args, &tmp_pos);
-// 		/* first method */
-// 		// sum = ;
-// 		args[3] = (process->cur_pos + ((args[1] + args[2]) % IDX_MOD) % MEM_SIZE);
-// 		array = process->reg[args[0] - 1];
-// 		i = 0;
-// 		while (i < 4)
-// 		{
-// 			vm->map[args[3] + i] = ((unsigned char *)&array)[3 - i];
-// 			i++;
-// 		}
-// 		//this is a test!
-// 		// vm->map[temp + i] = args[1];
-// 		// vm->map[temp + i + 1] = args[2];
-// 	}
-// 	process->cur_pos = tmp_pos + 1;//mb need to add 1 if second arg is T_IND ?
-// 	process->cycles_to_go = -1;
-// }
-
-void				feel_n_fill_pc(t_vm *vm, t_pc *process)//just 'zork.cor' for now
-{
+void				feel_n_fill_pc(t_vm *vm, t_pc *process, unsigned int cycles_count)//just 'zork.cor' for now
+{	
 	unsigned char	tmp;
 	unsigned int	a;
 
@@ -492,7 +240,7 @@ void				feel_n_fill_pc(t_vm *vm, t_pc *process)//just 'zork.cor' for now
 	tmp = vm->map[process->cur_pos];
 	a = tmp;
 	if (a == 1)
-		live_op(vm, process);
+		live_op(vm, process, cycles_count);
 	// else if (a == 2)
 	// 	ld_op(vm, process->cur_pos, process);
 	// else if (a == 3)
@@ -525,54 +273,51 @@ void				feel_n_fill_pc(t_vm *vm, t_pc *process)//just 'zork.cor' for now
 // 		aff_op(vm, process->cur_pos, process);
 
 	//here would be new get_cycles_to_go() funcrion use!!!!
+
 }
 
 int					get_cycles_to_go(t_vm *vm, t_pc *process)
 {
 	int				check;
 	unsigned char	temp;
-	int 			ret;
+	int				ret;
 
 	temp = vm->map[process->cur_pos];
 	check = temp;
-	if (check == 1)
+
+
+// printf("check=%u, ", check);
+
+	if (check == 1 || check == 4 || check == 5 || check == 13)
 		ret = 10;
-	else if (check == 2)
+	else if (check == 2 || check == 3)
 		ret = 5;
-	else if (check == 3)
-		ret = 5;
-	else if (check == 4)
-		ret = 10;
-	else if (check == 5)
-		ret = 10;
-	else if (check == 6)
-		ret = 6;
-	else if (check == 7)
-		ret = 6;
-	else if (check == 8)
+	else if (check == 6 || check == 7 || check == 8)
 		ret = 6;
 	else if (check == 9)
 		ret = 20;
-	else if (check == 10)
-		ret = 25;
-	else if (check == 11)
+	else if (check == 10 || check == 11)
 		ret = 25;
 	else if (check == 12)
 		ret = 800;
-	else if (check == 13)
-		ret = 10;
 	else if (check == 14)
 		ret = 50;
 	else if (check == 15)
 		ret = 1000;
 	else if (check == 16)
 		ret = 2;
-	else//mb an error?
+	else
+	{
 		ret = 0;
-	return (ret);
+		process->cur_pos = (process->cur_pos + 1) % MEM_SIZE;
+	}
+
+// printf("will wait=%d\n", ret);
+
+	return (ret - 1);
 }
 
-void				pc_list_checker(t_vm *vm)
+void				pc_list_checker(t_vm *vm, unsigned int cycles_count)
 {
 	t_pc			*pointer;
 
@@ -583,18 +328,84 @@ void				pc_list_checker(t_vm *vm)
 			pointer->cycles_to_go = get_cycles_to_go(vm, pointer);
 		else if (pointer->cycles_to_go > 0)
 			pointer->cycles_to_go--;
-		else if (pointer->cycles_to_go == 0)
-			feel_n_fill_pc(vm, pointer);
+		else if (pointer->cycles_to_go == 0)//was else if
+		{
+//		    printf("doingsomeshit!\n");
+			feel_n_fill_pc(vm, pointer, cycles_count);
+			pointer->cycles_to_go = get_cycles_to_go(vm, pointer);
+		}
+        pointer = pointer->next;
+	}
+}
 
-		pointer = pointer->next;
+int					check_process_lives(t_pc *pc_head)
+{
+	t_pc			*temp;
+
+	temp = pc_head;
+	while (temp != NULL)
+	{
+		if (temp->alive)
+			return (1);
+		temp = temp->next;
+	}
+	return (0);
+}
+
+int					check_players_pc_lives(t_vm *vm)
+{
+	unsigned int 	i;
+
+	i = 0;
+	while (i < vm->num_of_players)
+	{
+		if (vm->players[i].alives >= NBR_LIVE)
+			return (1);
+		i++;
+	}
+	return (0);
+}
+
+void				check_pc_to_die(t_vm *vm)//check it please
+{
+	t_pc			*temp;
+	t_pc			*prev;
+
+	temp = vm->pc_head;
+	prev = NULL;
+	while (temp)
+	{
+		if (temp->alive == 0)
+		{
+			if (prev == NULL)
+			{
+				free(temp);
+				temp = temp->next;
+				vm->pc_head = temp;
+			}
+			else
+			{
+				prev->next = temp->next;
+				free(temp);
+			}
+		}
+		else
+		{
+			prev = temp;
+			temp = temp->next;
+		}
 	}
 }
 
 void				are_u_ready_for_rumble(t_vm *vm)
 {
-	unsigned int	cycles_count = 0;
-	while (1)//while originaly
+	unsigned int	cycles_count;
+
+	cycles_count = 0;
+	while (1)
 	{
+
+// printf("CUR_cycle=%u\n", cycles_count);
 
 		if (vm->dump_flag == 1 && vm->dump_num <= cycles_count)
 		{
@@ -602,10 +413,22 @@ void				are_u_ready_for_rumble(t_vm *vm)
 			exit(0);
 			// error_exit("\nDUMP IN DA HOUSE!\n", -1);
 		}
-		else if ((vm->cycles_to_die <= 0))// || function to check pcs alive!!!
-			error_exit("THE END!\n", -1);
+		else if ((vm->cycles_to_die <= 0) || !check_process_lives(vm->pc_head))// || function to check pcs lives!!!
+			error_exit("THE END!\n", -1);//need good 'end_and_exit'!  aka "Player X (champion_name) won"
+//something wrong with cycle chechink - it supposed to decrement it properly
 
-		pc_list_checker(vm);
+
+// printf("CUR_cycle=%u\n", cycles_count);
+		pc_list_checker(vm, cycles_count);
+		/* cycle_to_die decrease */
+		if (cycles_count % vm->cycles_to_die == 0)//mb invalid! mb need whole function for this!
+			vm->max_checks++;
+		if (check_players_pc_lives(vm) || vm->max_checks == 10)//check when we ++ max_checks and etc.
+		{
+			vm->cycles_to_die -= CYCLE_DELTA;
+			check_pc_to_die(vm);
+			//plus zero everything and etc.
+		}
 		/***
 			here would be functions that checks whether we need or not decrease cycle_to_die
 

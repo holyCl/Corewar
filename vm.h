@@ -26,6 +26,7 @@ typedef struct		s_player
 	unsigned int	id;
 	int				player_number;
 	unsigned int	alives;
+	unsigned int	last_cycle_alive;
 	//do we need more diff lives ???
 }					t_player;
 
@@ -51,10 +52,17 @@ typedef struct		s_vm
 	t_pc			*pc_head;
 	unsigned char	map[MEM_SIZE];
 	unsigned int	cycles_to_die;
+	unsigned int	max_checks;
+	unsigned int	last_player_alive_id;
 }					t_vm;
 
 void				parse_all_players(int ac, char **av, t_vm *vm);
 void				error_exit(char *str, int fd);
 void				sti_op(t_vm *vm, t_pc *process);
+void				add_op(t_vm *vm, t_pc *process);
+void				sub_op(t_vm *vm, t_pc *process);
+void				and_op(t_vm *vm, t_pc *process);
+void				or_op(t_vm *vm, t_pc *process);
+void				xor_op(t_vm *vm, t_pc *process);
 unsigned int		get_arguments(t_vm *vm, unsigned int *cur_pos, int label);
 void				decodage_opcode(unsigned char codage, int *args_array, unsigned int max_args);

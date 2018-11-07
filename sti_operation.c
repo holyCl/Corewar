@@ -64,7 +64,7 @@ static void				get_all_arguments_sti(t_vm *vm, int *args_array, unsigned int *ar
 void				sti_op(t_vm *vm, t_pc *process)
 {
 	int				args_array[3];//was char
-	unsigned char	codage;
+	// unsigned char	codage;
 	unsigned int	args[4];
 	unsigned int	i;
 	unsigned int	tmp_pos;
@@ -72,9 +72,9 @@ void				sti_op(t_vm *vm, t_pc *process)
 	// unsigned int	sum;
 
 	tmp_pos = process->cur_pos;
-	codage = vm->map[++tmp_pos];
+	// codage = vm->map[++tmp_pos];
 	ft_bzero(&args_array, 3);
-	decodage_opcode(codage, args_array, 3);//mb add this line to sti_validation?
+	decodage_opcode(vm->map[++tmp_pos], args_array, 3);//there was codage instead of 'vm->map[++tmp_pos]' before //mb add this line to sti_validation?
 	if (sti_validation(args_array, &tmp_pos))
 	{
 		get_all_arguments_sti(vm, args_array, args, &tmp_pos);
@@ -92,6 +92,6 @@ void				sti_op(t_vm *vm, t_pc *process)
 		// vm->map[temp + i] = args[1];
 		// vm->map[temp + i + 1] = args[2];
 	}
-	process->cur_pos = tmp_pos + 1;//mb need to add 1 if second arg is T_IND ?
+	process->cur_pos = (tmp_pos + 1) % MEM_SIZE;//mb need to add 1 if second arg is T_IND ?
 	process->cycles_to_go = -1;
 }
