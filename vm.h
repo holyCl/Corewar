@@ -37,7 +37,8 @@ typedef struct		s_pc
 	unsigned int	cur_pos;
 	unsigned int	player_id;
 	unsigned int	command;
-	unsigned int	alive;
+	unsigned int	alive_bool;
+	unsigned int	alive_screams;
 	int				cycles_to_go;
 	struct s_pc		*next;
 }					t_pc;
