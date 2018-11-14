@@ -14,7 +14,13 @@ NAME = my_vm
 
 SRCS = main.c \
 		players_parse.c \
+		ld_operation.c \
+		ldi_operation.c \
 		sti_operation.c \
+		st_operation.c \
+		and_or_xor_operation.c \
+		add_sub_operations.c \
+		fork_n_lfork_operations.c
 		
 
 OBJ =	$(SRCS:%.c=%.o)

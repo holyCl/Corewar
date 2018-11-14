@@ -63,13 +63,11 @@ static void				get_all_arguments_sti(t_vm *vm, int *args_array, unsigned int *ar
 
 void				sti_op(t_vm *vm, t_pc *process)
 {
-	int				args_array[3];//was char
-	// unsigned char	codage;
+	int				args_array[3];
 	unsigned int	args[4];
 	unsigned int	i;
 	unsigned int	tmp_pos;
 	unsigned int	array;
-	// unsigned int	sum;
 
 	tmp_pos = process->cur_pos;
 	// codage = vm->map[++tmp_pos];
@@ -80,7 +78,8 @@ void				sti_op(t_vm *vm, t_pc *process)
 		get_all_arguments_sti(vm, args_array, args, &tmp_pos);
 		/* first method */
 		// sum = ;
-		args[3] = (process->cur_pos + ((args[1] + args[2]) % IDX_MOD) % MEM_SIZE);
+		// args[1] = 65462;
+		args[3] = (process->cur_pos + (((int)args[1] + (int)args[2]) % IDX_MOD) % MEM_SIZE);
 		array = process->reg[args[0] - 1];
 		i = 0;
 		while (i < 4)

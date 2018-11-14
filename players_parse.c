@@ -105,8 +105,10 @@ void				parse_exec_code(int fd, t_player *player)
 	rd = read(fd, player->exec_code, player->size);
 	if (rd != (ssize_t)player->size)
 		error_exit("Error executable reading.\n", fd);
-	if (read(fd, &check, 1) != 0)
+	if (read(fd, &check, 1) != 0){
+		printf("player='%s'\n", player->name);
 		error_exit("Not null after exec, its not so good mate.", fd);
+	}
 }
 void				parse_all_players(int ac, char **av, t_vm *vm)
 {
