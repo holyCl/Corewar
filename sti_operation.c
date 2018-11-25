@@ -47,7 +47,7 @@ static void				get_all_arguments_sti(t_vm *vm, int *args_array, unsigned int *ar
 	if (args_array[1] == REG_CODE)
 		args[1] = (unsigned char)get_arguments(vm, tmp_pos, 1);
 	else if (args_array[1] == DIR_CODE)
-		args[1] = (short)get_arguments(vm, tmp_pos, 2);
+        args[1] = get_arguments(vm, tmp_pos, 2);
 	else if (args_array[1] == IND_CODE)//almost sure something wrong with it!
 	{
 		//по карте перемещаемся на позицию ... и берем там аргумент
@@ -58,38 +58,84 @@ static void				get_all_arguments_sti(t_vm *vm, int *args_array, unsigned int *ar
 	if (args_array[2] == REG_CODE)
 		args[2] = (unsigned char)get_arguments(vm, tmp_pos, 1);
 	else if (args_array[2] == DIR_CODE)
-		args[2] = (short)get_arguments(vm, tmp_pos, 2);
+		args[2] = get_arguments(vm, tmp_pos, 2);//was cast to (short)
+}
+
+static void         store_value(t_vm *vm, unsigned int array, int position, unsigned char color)
+{
+    unsigned int	i;
+
+    i = 0;
+
+    //delete me!
+//    if (!array)
+//        array = 4294967295;
+    while (i < 4)
+    {
+        vm->map[(position + i) % MEM_SIZE] = ((unsigned char *)&array)[3 - i];
+        vm->map_color[(position + i) % MEM_SIZE] = color;
+        i++;
+    }
+
+}
+
+static int          calculate_position(t_pc *process, int *args_array, unsigned int *args)
+{
+    int             position;
+
+    position = 0;
+    if (args_array[1] == REG_CODE && args[1] >= 1 && args[1] <= 16)
+    {
+        if (args_array[2] == REG_CODE && args[2] >= 1 && args[2] <= 16)
+            position = ((int)process->reg[args[1] - 1] + (int)process->reg[args[2] - 1]) % IDX_MOD;
+        else
+            position = ((int)process->reg[args[1] - 1] + (short)args[2]) % IDX_MOD;//check if its ok with double cast!?
+    }
+    else if (args_array[1] == IND_CODE)
+    {
+        if (args_array[2] == REG_CODE && args[2] >= 1 && args[2] <= 16)
+            position = ((int)args[1] + (int)process->reg[args[2] - 1]) % IDX_MOD;
+        else
+            position = ((int)args[1] + (int)args[2]) % IDX_MOD;
+    }
+    else
+    {
+        if (args_array[2] == REG_CODE && args[2] >= 1 && args[2] <= 16)
+            position = ((short)args[1] + (int)process->reg[args[2] - 1]) % IDX_MOD;
+        else
+            position = ((short)args[1] + (short)args[2]) % IDX_MOD;
+    }
+    return (position);
 }
 
 void				sti_op(t_vm *vm, t_pc *process)
 {
 	int				args_array[3];
-	unsigned int	args[4];
-	unsigned int	i;
+	unsigned int	args[3];
 	unsigned int	tmp_pos;
-	unsigned int	array;
+	int             position;
 
 	tmp_pos = process->cur_pos;
-	// codage = vm->map[++tmp_pos];
 	ft_bzero(&args_array, 3);
 	decodage_opcode(vm->map[++tmp_pos], args_array, 3);//there was codage instead of 'vm->map[++tmp_pos]' before //mb add this line to sti_validation?
 	if (sti_validation(args_array, &tmp_pos))
 	{
 		get_all_arguments_sti(vm, args_array, args, &tmp_pos);
-		/* first method */
-		// sum = ;
-		// args[1] = 65462;
-		args[3] = (process->cur_pos + (((int)args[1] + (int)args[2]) % IDX_MOD) % MEM_SIZE);
-		array = process->reg[args[0] - 1];
-		i = 0;
-		while (i < 4)
-		{
-			vm->map[args[3] + i] = ((unsigned char *)&array)[3 - i];
-			i++;
-		}
-		//this is a test!
-		// vm->map[temp + i] = args[1];
-		// vm->map[temp + i + 1] = args[2];
+		position = (process->cur_pos + calculate_position(process, args_array, args));
+		if (position < 0)
+		    position = MEM_SIZE + (position % MEM_SIZE);
+		else
+		    position %= MEM_SIZE;
+
+
+//		if (args_array[1] == IND_CODE)
+//            args[3] = ((process->cur_pos + (((int)args[1] + (int)args[2]) % IDX_MOD)) % MEM_SIZE);
+//		else
+//		    args[3] = ((process->cur_pos + (((short)args[1] + (short)args[2]) % IDX_MOD)) % MEM_SIZE);
+
+    if (args[0] >= 1 && args[0] <= 16)
+        store_value(vm, process->reg[args[0] - 1], position, process->color);
+
 	}
 	process->cur_pos = (tmp_pos + 1) % MEM_SIZE;//mb need to add 1 if second arg is T_IND ?
 	process->cycles_to_go = -1;

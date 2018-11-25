@@ -18,7 +18,9 @@ SRCS = main.c \
 		ldi_operation.c \
 		sti_operation.c \
 		st_operation.c \
-		and_or_xor_operation.c \
+		and_operation.c \
+		or_operation.c \
+		xor_operation.c \
 		add_sub_operations.c \
 		fork_n_lfork_operations.c
 		

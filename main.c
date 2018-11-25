@@ -15,6 +15,8 @@
 #include <sys/types.h>
 #include <sys/uio.h>
 
+void				write_cur_map(t_vm *vm);
+
 void	error_exit(char *str, int fd)
 {
 	//print msg here!
@@ -66,16 +68,24 @@ t_pc				*create_new_pc(t_vm *vm, t_player *player, unsigned int position)
 	new_node->cur_pos = position;
 	new_node->cycles_to_go = -1;
 	new_node->alive_bool = 1;
+	new_node->command = player->exec_code[0];
+	//color here! need to change it!
+	new_node->color = player->id + 1;
 	if (vm->pc_head)
+	{
+		vm->pc_head->prev = new_node;
 		new_node->next = vm->pc_head;
+	}
 	vm->pc_head = new_node;
+	new_node->prev = NULL;
+	new_node->pc_number = (new_node->next) ? (new_node->next->pc_number + 1) : 1;
 	return (new_node);
 }
 
 void				position_players(t_vm *vm)
 {
 	unsigned int	space;
-	unsigned int	count_players;
+	int	count_players;
 	unsigned int	i;
 	unsigned int	j;
 	t_pc			*tmp_head;
@@ -85,12 +95,12 @@ void				position_players(t_vm *vm)
 	// new_pc = vm->pc_head;
 	space = MEM_SIZE / vm->num_of_players;
 	count_players = -1;
-	i = -1;
-	while (++count_players < vm->num_of_players)
+	i = 0;
+	while (++count_players < (int)vm->num_of_players)
 	{
-		j = -1;
+		j = 0;
 		tmp_head = NULL;
-		tmp_head = create_new_pc(vm, &vm->players[count_players], (i + 1));
+		tmp_head = create_new_pc(vm, &vm->players[count_players], (i));
 
 		//was before --- with reverse order
 		// if (new_pc == NULL)
@@ -100,9 +110,16 @@ void				position_players(t_vm *vm)
 		// 	new_pc->next = create_new_pc(vm, vm->players[count_players].id, (i + 1));
 		// 	new_pc = new_pc->next;
 		// }
-		while (++j < vm->players[count_players].size)
-			vm->map[++i] = vm->players[count_players].exec_code[j];
-		i += space;
+		while (j < vm->players[count_players].size)
+		{
+			vm->map[i] = vm->players[count_players].exec_code[j];
+			//color handle
+			vm->map_color[i] = tmp_head->color;
+			j++;
+			i++;
+		}
+
+		i = space * (count_players + 1);
 	}
 }
 
@@ -163,6 +180,8 @@ void				decodage_opcode(unsigned char codage, int *args_array, unsigned int max_
 			args_array[i] = DIR_CODE;
 		else if (check == 192)
 			args_array[i] = IND_CODE;
+		else
+			args_array[i] = 0;
 		codage <<= 2;
 		i++;
 	}
@@ -177,17 +196,20 @@ void				live_op(t_vm *vm, t_pc *process, unsigned int cycles_count)//“A proces
 	unsigned int	temp;
 	unsigned int	check_int;
 
+//printf("live_op(%u). at pos=%u;\n", cycles_count, process->cur_pos);
 
 	tmp_pos = process->cur_pos;
 	// decode_args(args_array, codage, max_args);
-	process->alive_screams++;
+	if (process->alive_bool == 0)
+	    process->alive_bool = 1;
+    process->alive_screams++;
 	check_int = vm->players[process->player_id].player_number;
 	temp = get_arguments(vm, &tmp_pos, 4);
 	// printf("live arg=%u\n", temp);
 	if (check_int == temp)
 	{
 
-		
+
 		// ft_printf("A process shows that player %d (%s) is alive\n", 
 		// 	vm->players[process->player_id].id, vm->players[process->player_id].name);
 		vm->players[process->player_id].alives++;
@@ -195,7 +217,7 @@ void				live_op(t_vm *vm, t_pc *process, unsigned int cycles_count)//“A proces
 		vm->last_player_alive_id = process->player_id;
 
 
-printf("ALive(%u) at %u cycle\n", vm->players[process->player_id].alives, cycles_count);
+//printf("ALive(%u) at %u cycle\n", vm->players[process->player_id].alives, cycles_count);
 	}
 	process->cur_pos = (tmp_pos + 1) % MEM_SIZE;
 	process->cycles_to_go = -1;
@@ -210,7 +232,8 @@ void				zjmp_op(t_vm *vm, t_pc *process)
 	short			check_int;
 
 	tmp_pos = process->cur_pos;
-	/****/ 
+	check_int = (short)tmp_pos;
+	/****/
 	//handle cur_pos step!
 	// codage = vm->map[++(*cur_pos)];
 	// ft_bzero(&args_array, 3);
@@ -225,10 +248,16 @@ void				zjmp_op(t_vm *vm, t_pc *process)
 	// }
 	// else
 	// 	error_exit("Error with codage in zjmp_op\n", -1);
-	check_int = (short)get_arguments(vm, &tmp_pos, 2);
+	check_int += ((short)get_arguments(vm, &tmp_pos, 2) % IDX_MOD);
 	if (process->carry == 1)
 	{
-		process->cur_pos = (((process->cur_pos + (int)check_int) % MEM_SIZE) % IDX_MOD); //was + tmp_pos
+	    if (check_int < 0)
+        {
+            check_int = MEM_SIZE + check_int;
+            process->cur_pos = ((check_int) % MEM_SIZE);
+        }
+        else
+    		process->cur_pos = ((check_int) % MEM_SIZE); //was + tmp_pos
 	}
 	else
 		process->cur_pos = (tmp_pos + 1) % MEM_SIZE;
@@ -249,7 +278,8 @@ void				aff_op(t_vm *vm, t_pc *process)
 	if (opcode == REG_CODE)
 	{
 		ret = (unsigned char)get_arguments(vm, &tmp_pos, 1);
-		ret = process->reg[ret - 1] % 256;
+		if (ret >= 1 && ret <= 16)
+	    	ret = process->reg[ret - 1] % 256;
 		if (vm->dump_flag == 0 && ret >= 1 && ret <= 16) //&& no visualization
 			ft_printf("%c\n");
 	}
@@ -259,13 +289,14 @@ void				aff_op(t_vm *vm, t_pc *process)
 
 void				feel_n_fill_pc(t_vm *vm, t_pc *process, unsigned int cycles_count)//just 'zork.cor' for now
 {	
-	unsigned char	tmp;
+//	unsigned char	tmp;//used to convert unsigned char to int after reading it from map!
 	unsigned int	a;
 
 	a = 0;
-	tmp = 0;
-	tmp = vm->map[process->cur_pos % MEM_SIZE];
-	a = tmp;
+	a = process->command;
+
+//printf("!!>>feel_n_fill(%u). cm=%u, pl_num=%u; forked_flag==%u\n", cycles_count, a, process->pc_number, process->forked);
+
 	if (a == 1)
 		live_op(vm, process, cycles_count);
 	else if (a == 2)
@@ -298,19 +329,16 @@ void				feel_n_fill_pc(t_vm *vm, t_pc *process, unsigned int cycles_count)//just
 		lfork_op(vm, process);
 	else if (a == 16)
 		aff_op(vm, process);
-
-	//here would be new get_cycles_to_go() funcrion use!!!!
-
 }
 
-int					get_cycles_to_go(t_vm *vm, t_pc *process)
+int					get_cycles_to_go(t_vm *vm, t_pc *process, const int flag)
 {
 	int				check;
-	unsigned char	temp;
+//	unsigned char	temp;
 	int				ret;
 
-	temp = vm->map[process->cur_pos % MEM_SIZE];
-	check = temp;
+//	temp = vm->map[process->cur_pos % MEM_SIZE];
+	check = process->command;
 
 // printf("check=%u, ", check);
 
@@ -335,11 +363,24 @@ int					get_cycles_to_go(t_vm *vm, t_pc *process)
 	else
 	{
 		ret = 0;
-		process->cur_pos = (process->cur_pos + 1) % MEM_SIZE;
+		if (flag)
+        {
+            process->cur_pos = (process->cur_pos + 1) % MEM_SIZE;
+            process->command = vm->map[process->cur_pos];
+            //trying my bst to fix bug with incorrect steps =`(
+            if (process->command >= 1 && process->command <= 16)
+                ret = get_cycles_to_go(vm, process, 0) + 1;
+        }
+        //was without IF!
+//		process->cur_pos = (process->cur_pos + 1) % MEM_SIZE;
+//		process->command = vm->map[process->cur_pos];
 	}
-
 // printf("will wait=%d\n", ret);
-
+	if (process->forked)
+	{
+		ret -= 1;
+		process->forked = 0;
+	}
 	return (ret - 1);
 }
 
@@ -350,23 +391,26 @@ void				pc_list_checker(t_vm *vm, unsigned int cycles_count)
 	pointer = vm->pc_head;
 	while (pointer)
 	{
-		if (pointer->alive_bool == 1)
-		{
 			if (pointer->cycles_to_go < 0)
-				pointer->cycles_to_go = get_cycles_to_go(vm, pointer);
+			{
+			    pointer->command = vm->map[pointer->cur_pos];
+                pointer->cycles_to_go = get_cycles_to_go(vm, pointer, 1);
+			}
 			else if (pointer->cycles_to_go > 0)
 				pointer->cycles_to_go--;
 			else if (pointer->cycles_to_go == 0)//was else if
 			{
+			    if (pointer->command == 0 || pointer->command > 16)
+			        pointer->command = vm->map[pointer->cur_pos];
 				feel_n_fill_pc(vm, pointer, cycles_count);
-				pointer->cycles_to_go = get_cycles_to_go(vm, pointer);
+                pointer->command = vm->map[pointer->cur_pos];
+                pointer->cycles_to_go = get_cycles_to_go(vm, pointer, 0);
 			}
-		}
 		//its realy tricky
 		pointer = pointer->next;
 	}
 }
-
+/*
 int					check_process_lives(t_pc *pc_head)
 {
 	t_pc			*temp;
@@ -380,20 +424,23 @@ int					check_process_lives(t_pc *pc_head)
 	}
 	return (0);
 }
-
-int					check_players_pc_lives(t_vm *vm)
+*/
+int					check_players_pc_lives(t_vm *vm)//check last changes!
 {
 	unsigned int 	i;
+	t_pc            *temp;
 
+	temp = vm->pc_head;
 	i = 0;
-	while (i < vm->num_of_players)
+	while (temp)
 	{
-		if (vm->players[i].alives >= NBR_LIVE)
+		i += temp->alive_screams;
+		if (i >= NBR_LIVE)
 		{
 			vm->max_checks = 0;
 			return (1);
 		}
-		i++;
+		temp = temp->next;
 	}
 	return (0);
 }
@@ -434,23 +481,41 @@ void				check_pc_to_die(t_vm *vm)//check it, please cus I changed removing node 
 void				zero_all_alives_screams(t_vm *vm)
 {
 	t_pc			*temp;
-	unsigned int 	i;
+	int         	i;
 
 	temp = vm->pc_head;
 	while (temp)
 	{
-		//here we make it either new (ready) to go || kill it with 0 flag
-		if (temp->alive_screams)
-			temp->alive_screams = 0;
+		if (temp->alive_bool)
+        {
+            temp->alive_screams = 0;
+            temp->alive_bool = 0;
+        }
 		else
-			temp->alive_bool = 0;
+		{
+//	printf("Killed %upc, on pos=%u, cm=%u, CTG=%u\n", temp->pc_number, temp->cur_pos, temp->command, temp->cycles_to_go);
+
+		    temp->alive_bool = 0;
+            temp->alive_screams = 0;
+			if (temp->prev)
+			{
+				temp->prev->next = temp->next;
+				if (temp->next)
+					temp->next->prev = temp->prev;
+			}
+			else
+			{
+				vm->pc_head = temp->next;
+				if (temp->next)
+					temp->next->prev = NULL;
+			}
+			free(temp);
+		}
 		temp = temp->next;
 	}
 	i = -1;
-	while (++i < vm->num_of_players)
-	{
+	while (++i < (int)vm->num_of_players)
 		vm->players[i].alives = 0;
-	}
 }
 
 void				players_intro(t_vm *vm)
@@ -496,8 +561,10 @@ void				write_cur_map(t_vm *vm)
 	i = 0;
 	while (i < MEM_SIZE)
 	{
-		if (i != 0 && i % 32 == 0)
-			write(1, "\n", 1);
+	    if (i == 0)
+	        ft_printf("0x0000 : ");
+		if (i != 0 && i % 64 == 0)
+		    ft_printf("\n0x%04x : ", i);
 		if (vm->map[i])
 			ft_printf("%02x ", vm->map[i]);
 		else
@@ -519,15 +586,60 @@ void				are_u_ready_for_rumble(t_vm *vm)
 
 // printf("CUR_cycle=%u\n", cycles_count);
 
-//for debuging purposes
-  // if (cycles_count == 25)
-  //   printf("NOW!\n");
+////for debuging purposes
+   if (cycles_count == 15376)
+     printf("NOW!\n");
 
+
+		if ((vm->cycles_to_die <= 0))//|| check_process_lives(vm->pc_head) == 0)// || function to check pcs lives!!!
+		{
+			// error_exit("THE END1!\n", -1);//need good 'end_and_exit'!  aka "Player X (champion_name) won"
+//	printf("\n1 ON %u CYCLE!\n", cycles_count);
+			end_this_game(vm);
+		}
+		else if (vm->pc_head == NULL)//was --> check_process_lives(vm->pc_head) == 0)// || function to check pcs lives!!!
+		{
+			// error_exit("THE END2!\n", -1);//need good 'end_and_exit'!  aka "Player X (champion_name) won"
+//	printf("\n2 ON %u CYCLE!\n", cycles_count);
+			end_this_game(vm);
+		}
+
+		pc_list_checker(vm, cycles_count);
+
+		if (cycles_count == general_cycles_count)//was 'cycles_count % vm->cycles_to_die <= 0 && cycles_count > 0'// what if its less than 50?
+		{
+			if (check_players_pc_lives(vm))
+			{
+			    //delete this
+//		printf(">>>CYCLE= %u<<<\n", cycles_count);
+
+				vm->cycles_to_die -= CYCLE_DELTA;
+				zero_all_alives_screams(vm);
+				vm->max_checks = 0;
+				general_cycles_count += vm->cycles_to_die;
+			}
+			else if (vm->max_checks == 10)
+			{
+			    //delete this
+//        printf(">>>CYCLE= %u<<<\n", cycles_count);
+
+				vm->cycles_to_die -= CYCLE_DELTA;
+				zero_all_alives_screams(vm);
+				vm->max_checks = 0;
+				general_cycles_count += vm->cycles_to_die;
+			}
+			else
+			{
+				vm->max_checks++;
+				zero_all_alives_screams(vm);
+				general_cycles_count += vm->cycles_to_die;
+			}
+		}
 		if (vm->dump_flag == 1 && vm->dump_num <= cycles_count)
 		{
-			
+
 			//delete this! number of pc`s count
-			
+
 			write_cur_map(vm);
 
 			t_pc	*temp = vm->pc_head;
@@ -536,72 +648,27 @@ void				are_u_ready_for_rumble(t_vm *vm)
 			while (temp)
 			{
 				i++;
-				ft_printf("%dpc= %02x, alive= %d; | pos=%u, before=%02x, after=%02x\n", 
-					i, vm->map[temp->cur_pos], temp->alive_bool, temp->cur_pos, vm->map[temp->cur_pos - 1], vm->map[temp->cur_pos + 1]);
+				ft_printf("%3dpc= %02x, alive= %d; carry=%u; cm=%2u  |||  pos=%4u, before=%02x, after=%02x, cycle_to_go=%d\n",
+						  temp->pc_number, vm->map[temp->cur_pos], temp->alive_bool, temp->carry, temp->command, temp->cur_pos, vm->map[temp->cur_pos - 1], vm->map[temp->cur_pos + 1], temp->cycles_to_go);
+////                ft_printf("           after+1=%02x, after+2=%02x, after+3=%02x, after+4=%02x, after+5=%02x, after+6=%02x, after+7=%02x\n",
+////                          vm->map[temp->cur_pos + 2], vm->map[temp->cur_pos + 3], vm->map[temp->cur_pos + 4], vm->map[temp->cur_pos + 5], vm->map[temp->cur_pos + 6], vm->map[temp->cur_pos + 7], vm->map[temp->cur_pos + 8]);
 				temp = temp->next;
 			}
-			printf("pc_sum==%d,\n", i);
+			printf("pc_sum==%d, CYCLE=%u, CYCLE_TO_DIE=%u\n", i, cycles_count, vm->cycles_to_die);
 
+			//удали гребаный дебаг
+//			int delme = 2362;
+//			printf("lookat=%02x, pos=%i, before=%02x, after==%02x;\n", vm->map[delme], delme, vm->map[delme - 1], vm->map[delme + 1]);
 
-			// write_cur_map(vm);
+//			 write_cur_map(vm);
 			free_vm(vm);
 			exit(0);
-			// error_exit("\nDUMP IN DA HOUSE!\n", -1);
+			// error_exit("\nDUMP IN DA E!\n", -1);
 		}
-		else if ((vm->cycles_to_die <= 0))//|| check_process_lives(vm->pc_head) == 0)// || function to check pcs lives!!!
-		{
-	// printf("end cycle1=%u\n", cycles_count);
-			// error_exit("THE END1!\n", -1);//need good 'end_and_exit'!  aka "Player X (champion_name) won"
-			end_this_game(vm);
-		}
-		else if (check_process_lives(vm->pc_head) == 0)// || function to check pcs lives!!!
-		{
-	// printf("end cycle2=%u\n", cycles_count);
-			// error_exit("THE END2!\n", -1);//need good 'end_and_exit'!  aka "Player X (champion_name) won"
-			end_this_game(vm);
-		}
-//something wrong with cycle chechink - it supposed to decrement it properly
 
 
-// printf("CUR_cycle=%u\n", cycles_count);
-		pc_list_checker(vm, cycles_count);
-		/* cycle_to_die decrease */
-		if (cycles_count == general_cycles_count)//was 'cycles_count % vm->cycles_to_die <= 0 && cycles_count > 0'// what if its less than 50?
-		{
-// printf("\n>>ONECHECK!, cycles_to_die=%u\n", vm->cycles_to_die);
-			if (check_players_pc_lives(vm))
-			{
-				
-				vm->cycles_to_die -= CYCLE_DELTA;
-
-// printf("decrease 21! cycle_to_die==%u,   on cycle=%u\n", vm->cycles_to_die, cycles_count);
-
-				zero_all_alives_screams(vm);
-				vm->max_checks = 0;
-				general_cycles_count += vm->cycles_to_die;
-			}
-			else if (vm->max_checks == 9)
-			{
-
-				vm->cycles_to_die -= CYCLE_DELTA;
-			
-// printf("decrease MAX! cycle_to_die==%u,  on cycle=%u\n", vm->cycles_to_die, cycles_count);
-
-				//check_pc_to_die(vm);//for list deleting
-				zero_all_alives_screams(vm);//for changing flag
-				vm->max_checks = 0;
-				general_cycles_count += vm->cycles_to_die;
-			}
-			else
-			{
-// printf("ONE!, (%u)\n", vm->max_checks);
-	
-				vm->max_checks++;
-				zero_all_alives_screams(vm);
-				general_cycles_count += vm->cycles_to_die;
-			}
-		}
 		cycles_count++;
+//		printf("IT IS %u cycle!\n", cycles_count);
 	}
 }
 

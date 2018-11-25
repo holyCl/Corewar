@@ -14,10 +14,10 @@
 
 static int					ld_validation(int *args, unsigned int *tmp_pos)//check it with invalid argument!
 {
-	unsigned int	step;
+//	unsigned int	step;
 	unsigned int	i;
 
-	step = 0;
+//	step = 0;
 	if (args[1] == REG_CODE && (args[0] == DIR_CODE || args[0] == IND_CODE))
 		return (1);
 	else
@@ -36,20 +36,23 @@ static int					ld_validation(int *args, unsigned int *tmp_pos)//check it with in
 	}
 }
 
-//check it carefully!
 static void				get_all_arguments_ld(t_vm *vm, int *args_array, 
-					unsigned int *args, unsigned int *tmp_pos)
+					unsigned int *args, unsigned int *tmp_pos)///check with IND argument!
 {
 	unsigned int tmp_cur_pos;
+	short        sh;
 
+	tmp_cur_pos = 0;
 	if (args_array[0] == DIR_CODE)
 	{
 		args[0] = get_arguments(vm, tmp_pos, 4);
 	}
 	else if (args_array[0] == IND_CODE)
 	{
-		args[0] = (short)get_arguments(vm, tmp_pos, 2) % IDX_MOD;
-		tmp_cur_pos = ((*tmp_pos - 2) + args[0]) % MEM_SIZE;//here might be problem with steping backwards
+		sh = ((short)get_arguments(vm, tmp_pos, 2)) % IDX_MOD;
+		if (sh < 0)
+		    sh = MEM_SIZE + sh;
+		tmp_cur_pos = (((*tmp_pos - 3) + sh) - 1) % MEM_SIZE;// -1 is for jumper!, and before it was -2 !!! so -3 is for gagnant
 		args[0] = get_arguments(vm, &(tmp_cur_pos), 4);
 	}
 	if (args_array[1] == REG_CODE)
@@ -64,17 +67,20 @@ void				ld_op(t_vm *vm, t_pc *process)
 
 	tmp_pos = process->cur_pos;
 	ft_bzero(&args_array, 2);
-	decodage_opcode(vm->map[++tmp_pos], args_array, 2);//there was codage instead of 'vm->map[++tmp_pos]' before //mb add this line to sti_validation?
+	decodage_opcode(vm->map[++tmp_pos], args_array, 2);
 	if (ld_validation(args_array, &tmp_pos))
 	{
 		get_all_arguments_ld(vm, args_array, args, &tmp_pos);
-		process->reg[args[1] - 1] = args[0];
-		if (process->reg[args[1] - 1] == 0)
-			process->carry = 1;
-		else
-			process->carry = 0;
+		if (args[1] >= 1 && args[1] <= 16)
+        {
+            process->reg[args[1] - 1] = args[0];
+            if (process->reg[args[1] - 1] == 0)
+                process->carry = 1;
+            else
+                process->carry = 0;
+        }
 	}
-	process->cur_pos = (tmp_pos + 1) % MEM_SIZE;//mb need to add 1 if second arg is T_IND ?
+	process->cur_pos = (tmp_pos + 1) % MEM_SIZE;
 	process->cycles_to_go = -1;
 }
 
@@ -82,6 +88,7 @@ static void				get_all_arguments_lld(t_vm *vm, int *args_array,
 					unsigned int *args, unsigned int *tmp_pos)
 {
 	unsigned int tmp_cur_pos;
+    short        sh;
 
 	if (args_array[0] == DIR_CODE)
 	{
@@ -89,8 +96,10 @@ static void				get_all_arguments_lld(t_vm *vm, int *args_array,
 	}
 	else if (args_array[0] == IND_CODE)
 	{
-		args[0] = (short)get_arguments(vm, tmp_pos, 2);
-		tmp_cur_pos = ((*tmp_pos - 2) + args[0]) % MEM_SIZE;
+		sh = (short)get_arguments(vm, tmp_pos, 2);
+        if (sh < 0)
+            sh = MEM_SIZE + sh;
+		tmp_cur_pos = (((*tmp_pos - 3) + sh) - 1) % MEM_SIZE;//add -1 !
 		args[0] = get_arguments(vm, &(tmp_cur_pos), 4);
 	}
 	if (args_array[1] == REG_CODE)
@@ -109,11 +118,14 @@ void				lld_op(t_vm *vm, t_pc *process)
 	if (ld_validation(args_array, &tmp_pos))
 	{
 		get_all_arguments_lld(vm, args_array, args, &tmp_pos);
-		process->reg[args[1] - 1] = args[0];
-		if (process->reg[args[1] - 1] == 0)
-			process->carry = 1;
-		else
-			process->carry = 0;
+        if (args[1] >= 1 && args[1] <= 16)
+        {
+            process->reg[args[1] - 1] = args[0];
+            if (process->reg[args[1] - 1] == 0)
+                process->carry = 1;
+            else
+                process->carry = 0;
+        }
 	}
 	process->cur_pos = (tmp_pos + 1) % MEM_SIZE;//mb need to add 1 if second arg is T_IND ?
 	process->cycles_to_go = -1;

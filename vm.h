@@ -35,12 +35,19 @@ typedef struct		s_pc
 	unsigned int	reg[REG_NUMBER];
 	unsigned int	cur_pos;
 	unsigned int	player_id;
-	unsigned int	command;
+	 unsigned int	command;
 	unsigned int	alive_bool;
 	unsigned int	alive_screams;
+	unsigned int	forked;
 	int				cycles_to_go;
+	unsigned int	pc_number;
+	unsigned int    invalid_cm_flag;
+	//for color handle
+    unsigned char   color;
 	struct s_pc		*next;
+    struct s_pc		*prev;
 }					t_pc;
+
 
 typedef struct		s_vm
 {
@@ -50,7 +57,8 @@ typedef struct		s_vm
 	unsigned int	dump_num;
 	t_pc			*pc_head;
 	unsigned char	map[MEM_SIZE];
-	int	cycles_to_die;
+	unsigned char   map_color[MEM_SIZE];
+	int				cycles_to_die;
 	unsigned int	max_checks;
 	unsigned int	last_player_alive_id;
 }					t_vm;
