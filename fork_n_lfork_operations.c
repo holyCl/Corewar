@@ -28,6 +28,7 @@ t_pc				*fork_process(t_vm *vm, t_pc *process, short position)
 	new_node->player_id = process->player_id;
 	new_node->command = process->command;
 	new_node->alive_bool = process->alive_bool;
+	new_node->color = process->color;
 	new_node->cycles_to_go = -1;
 	new_node->forked = 1;
 	new_node->cur_pos = position;
