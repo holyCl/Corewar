@@ -14,6 +14,7 @@
 
 #include <fcntl.h>
 #include "op.h"
+#include <curses.h>
 // #include <>
 // #include <>
 
@@ -61,9 +62,12 @@ typedef struct		s_vm
 	int				cycles_to_die;
 	unsigned int	max_checks;
 	unsigned int	last_player_alive_id;
+	unsigned int	visual_flag;
+	int				pl_numbers[4];
 }					t_vm;
 
-void				parse_all_players(int ac, char **av, t_vm *vm);
+void				parse_pl(char *av, t_vm *vm, unsigned int id, int pl_num);
+void				parse_arguments(int ac, char **av, t_vm *vm);
 void				error_exit(char *str, int fd);
 void				st_op(t_vm *vm, t_pc *process);
 void				sti_op(t_vm *vm, t_pc *process);
@@ -79,5 +83,12 @@ void				lldi_op(t_vm *vm, t_pc *process);
 void				fork_op(t_vm *vm, t_pc *process);
 void				lfork_op(t_vm *vm, t_pc *process);
 unsigned int		get_arguments(t_vm *vm, unsigned int *cur_pos, int label);
-void				decodage_opcode(unsigned char codage, int *args_array, unsigned int max_args);
+void				decodage_opcode(unsigned char codage, int *array, int max);
 void 				ft_bzero_int_arr(int *args_array, const int max);
+void				live_op(t_vm *vm, t_pc *process, unsigned int cycles_count);
+void				zjmp_op(t_vm *vm, t_pc *process);
+void				aff_op(t_vm *vm, t_pc *process);
+t_pc				*create_pc(t_vm *vm, t_player *player, unsigned int position);
+void				position_players(t_vm *vm);
+void				players_intro(t_vm *vm);
+void				pc_list_checker(t_vm *vm, unsigned int cycles_count);

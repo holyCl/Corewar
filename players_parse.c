@@ -110,19 +110,19 @@ void				parse_exec_code(int fd, t_player *player)
 		error_exit("Not null after exec, its not so good mate.", fd);
 	}
 }
-void				parse_all_players(int ac, char **av, t_vm *vm)
+void				parse_pl(char *av, t_vm *vm, unsigned int id, int pl_num)
 {
 	int				fd;
-	int				i;
-	unsigned int	id;
+//	int				i;
+//	unsigned int	id;
 
-	id = 0;
-	i = 0;
-	while (++i < ac)//stupid!
-	{
-		if (ft_strstr(av[i], ".cor"))
-		{
-			fd = open(av[i], O_RDONLY);
+	id -= 1;
+//	i = 0;
+//	while (++i < ac)//stupid!
+//	{
+//		if (ft_strstr(av, ".cor"))// mb change too diff validation?
+//		{
+			fd = open(av, O_RDONLY);
 			if (fd < 0)
 				error_exit("Failed to read file.\n", fd);
 			else
@@ -133,10 +133,13 @@ void				parse_all_players(int ac, char **av, t_vm *vm)
 				parse_comment(fd, &vm->players[id]);
 				parse_exec_code(fd, &vm->players[id]);
 				vm->players[id].id = id;
-				vm->players[id].player_number = (id + 1) * (-1);
+				if (pl_num)
+					vm->players[id].player_number = pl_num * (-1);
+				else
+					vm->players[id].player_number = (id + 1) * (-1);
 			}
-			id++;
+//			id++;
 			close(fd);
-		}
-	}
+//		}
+//	}
 }
