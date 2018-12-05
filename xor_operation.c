@@ -85,7 +85,7 @@ void				xor_op(t_vm *vm, t_pc *process)
 
 	tmp_pos = process->cur_pos;
 	codage = vm->map[++tmp_pos];
-	ft_bzero(&args_array, 3);
+	ft_bzero_int_arr(args_array, 3);
 	decodage_opcode(codage, args_array, 3);
 	if (aox_op_validation(args_array, &tmp_pos))
 	{

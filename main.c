@@ -190,6 +190,18 @@ void				decodage_opcode(unsigned char codage, int *args_array, unsigned int max_
 	// printf("%d\n", args_array[2]);
 }
 
+void 				ft_bzero_int_arr(int *args_array, const int max)
+{
+	int 			i;
+
+	i = 0;
+	while (i < max)
+	{
+		args_array[i] = 0;
+		i++;
+	}
+}
+
 void				live_op(t_vm *vm, t_pc *process, unsigned int cycles_count)//“A process shows that player X (champion_name) is alive"
 {
 	unsigned int	tmp_pos;
@@ -210,7 +222,7 @@ void				live_op(t_vm *vm, t_pc *process, unsigned int cycles_count)//“A proces
 	{
 
 
-		// ft_printf("A process shows that player %d (%s) is alive\n", 
+		// ft_printf("A process shows that player %d (%s) is alive\n",
 		// 	vm->players[process->player_id].id, vm->players[process->player_id].name);
 		vm->players[process->player_id].alives++;
 		vm->players[process->player_id].last_cycle_alive = cycles_count;
@@ -587,20 +599,20 @@ void				are_u_ready_for_rumble(t_vm *vm)
 // printf("CUR_cycle=%u\n", cycles_count);
 
 ////for debuging purposes
-   if (cycles_count == 15376)
-     printf("NOW!\n");
+//   if (cycles_count == 4569)
+//     printf("NOW!\n");
 
 
 		if ((vm->cycles_to_die <= 0))//|| check_process_lives(vm->pc_head) == 0)// || function to check pcs lives!!!
 		{
 			// error_exit("THE END1!\n", -1);//need good 'end_and_exit'!  aka "Player X (champion_name) won"
-//	printf("\n1 ON %u CYCLE!\n", cycles_count);
+	printf("\n1 ON %u CYCLE!\n", cycles_count);
 			end_this_game(vm);
 		}
 		else if (vm->pc_head == NULL)//was --> check_process_lives(vm->pc_head) == 0)// || function to check pcs lives!!!
 		{
 			// error_exit("THE END2!\n", -1);//need good 'end_and_exit'!  aka "Player X (champion_name) won"
-//	printf("\n2 ON %u CYCLE!\n", cycles_count);
+	printf("\n2 ON %u CYCLE!\n", cycles_count);
 			end_this_game(vm);
 		}
 
@@ -640,27 +652,27 @@ void				are_u_ready_for_rumble(t_vm *vm)
 
 			//delete this! number of pc`s count
 
-			write_cur_map(vm);
-
-			t_pc	*temp = vm->pc_head;
-			int i = 0;
-			printf("\n>>>processes:\n");
-			while (temp)
-			{
-				i++;
-				ft_printf("%3dpc= %02x, alive= %d; carry=%u; cm=%2u  |||  pos=%4u, before=%02x, after=%02x, cycle_to_go=%d\n",
-						  temp->pc_number, vm->map[temp->cur_pos], temp->alive_bool, temp->carry, temp->command, temp->cur_pos, vm->map[temp->cur_pos - 1], vm->map[temp->cur_pos + 1], temp->cycles_to_go);
-////                ft_printf("           after+1=%02x, after+2=%02x, after+3=%02x, after+4=%02x, after+5=%02x, after+6=%02x, after+7=%02x\n",
-////                          vm->map[temp->cur_pos + 2], vm->map[temp->cur_pos + 3], vm->map[temp->cur_pos + 4], vm->map[temp->cur_pos + 5], vm->map[temp->cur_pos + 6], vm->map[temp->cur_pos + 7], vm->map[temp->cur_pos + 8]);
-				temp = temp->next;
-			}
-			printf("pc_sum==%d, CYCLE=%u, CYCLE_TO_DIE=%u\n", i, cycles_count, vm->cycles_to_die);
+//			write_cur_map(vm);
+//
+//			t_pc	*temp = vm->pc_head;
+//			int i = 0;
+//			printf("\n>>>processes:\n");
+//			while (temp)
+//			{
+//				i++;
+//				ft_printf("%3dpc= %02x, alive= %d; carry=%u; pl=%2u cm=%2u  |||  pos=%4u, before=%02x, after=%02x, cycle_to_go=%d\n",
+//						  temp->pc_number, vm->map[temp->cur_pos], temp->alive_bool, temp->carry, temp->player_id ,temp->command, temp->cur_pos, vm->map[temp->cur_pos - 1], vm->map[temp->cur_pos + 1], temp->cycles_to_go);
+//////                ft_printf("           after+1=%02x, after+2=%02x, after+3=%02x, after+4=%02x, after+5=%02x, after+6=%02x, after+7=%02x\n",
+//////                          vm->map[temp->cur_pos + 2], vm->map[temp->cur_pos + 3], vm->map[temp->cur_pos + 4], vm->map[temp->cur_pos + 5], vm->map[temp->cur_pos + 6], vm->map[temp->cur_pos + 7], vm->map[temp->cur_pos + 8]);
+//				temp = temp->next;
+//			}
+//			printf("pc_sum==%d, CYCLE=%u, CYCLE_TO_DIE=%u\n", i, cycles_count, vm->cycles_to_die);
 
 			//удали гребаный дебаг
 //			int delme = 2362;
 //			printf("lookat=%02x, pos=%i, before=%02x, after==%02x;\n", vm->map[delme], delme, vm->map[delme - 1], vm->map[delme + 1]);
 
-//			 write_cur_map(vm);
+            write_cur_map(vm);
 			free_vm(vm);
 			exit(0);
 			// error_exit("\nDUMP IN DA E!\n", -1);

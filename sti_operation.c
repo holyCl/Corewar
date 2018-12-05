@@ -116,7 +116,7 @@ void				sti_op(t_vm *vm, t_pc *process)
 	int             position;
 
 	tmp_pos = process->cur_pos;
-	ft_bzero(&args_array, 3);
+	ft_bzero_int_arr(args_array, 3);
 	decodage_opcode(vm->map[++tmp_pos], args_array, 3);//there was codage instead of 'vm->map[++tmp_pos]' before //mb add this line to sti_validation?
 	if (sti_validation(args_array, &tmp_pos))
 	{

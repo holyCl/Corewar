@@ -80,3 +80,4 @@ void				fork_op(t_vm *vm, t_pc *process);
 void				lfork_op(t_vm *vm, t_pc *process);
 unsigned int		get_arguments(t_vm *vm, unsigned int *cur_pos, int label);
 void				decodage_opcode(unsigned char codage, int *args_array, unsigned int max_args);
+void 				ft_bzero_int_arr(int *args_array, const int max);

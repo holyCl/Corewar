@@ -15,7 +15,7 @@
 static int					ld_validation(int *args, unsigned int *tmp_pos)//check it with invalid argument!
 {
 //	unsigned int	step;
-	unsigned int	i;
+	int	i;
 
 //	step = 0;
 	if (args[1] == REG_CODE && (args[0] == DIR_CODE || args[0] == IND_CODE))
@@ -66,7 +66,7 @@ void				ld_op(t_vm *vm, t_pc *process)
 	unsigned int	tmp_pos;
 
 	tmp_pos = process->cur_pos;
-	ft_bzero(&args_array, 2);
+	ft_bzero_int_arr(args_array, 2);
 	decodage_opcode(vm->map[++tmp_pos], args_array, 2);
 	if (ld_validation(args_array, &tmp_pos))
 	{
@@ -80,6 +80,7 @@ void				ld_op(t_vm *vm, t_pc *process)
                 process->carry = 0;
         }
 	}
+
 	process->cur_pos = (tmp_pos + 1) % MEM_SIZE;
 	process->cycles_to_go = -1;
 }
@@ -113,7 +114,7 @@ void				lld_op(t_vm *vm, t_pc *process)
 	unsigned int	tmp_pos;
 
 	tmp_pos = process->cur_pos;
-	ft_bzero(&args_array, 2);
+	ft_bzero_int_arr(args_array, 2);
 	decodage_opcode(vm->map[++tmp_pos], args_array, 2);//there was codage instead of 'vm->map[++tmp_pos]' before //mb add this line to sti_validation?
 	if (ld_validation(args_array, &tmp_pos))
 	{
