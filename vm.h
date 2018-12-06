@@ -15,8 +15,7 @@
 #include <fcntl.h>
 #include "op.h"
 #include <curses.h>
-// #include <>
-// #include <>
+
 
 typedef struct		s_player
 {
@@ -92,3 +91,10 @@ t_pc				*create_pc(t_vm *vm, t_player *player, unsigned int position);
 void				position_players(t_vm *vm);
 void				players_intro(t_vm *vm);
 void				pc_list_checker(t_vm *vm, unsigned int cycles_count);
+void	            error_exit(char *str, int fd);
+void				zero_all_alives_screams(t_vm *vm);
+int					check_players_pc_lives(t_vm *vm);
+void				free_vm(t_vm *vm);
+void				end_this_game(t_vm *vm);
+void				write_cur_map(t_vm *vm);
+void				are_u_ready_for_rumble(t_vm *vm);

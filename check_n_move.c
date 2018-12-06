@@ -59,22 +59,6 @@ static void				choose_pc(t_vm *vm, t_pc *process, unsigned int cycles)
 		xor_op(vm, process);
 	else if (a >= 9 && a <= 16)
 		choose_helper(vm, process, a);
-	// else if (a == 9)
-	// 	zjmp_op(vm, process);
-	// else if (a == 10)
-	// 	ldi_op(vm, process);
-	// else if (a == 11)
-	// 	sti_op(vm, process);
-	// else if (a == 12)
-	// 	fork_op(vm, process);
-	// else if (a == 13)
-	// 	lld_op(vm, process);
-	// else if (a == 14)
-	// 	lldi_op(vm, process);
-	// else if (a == 15)
-	// 	lfork_op(vm, process);
-	// else if (a == 16)
-	// 	aff_op(vm, process);
 }
 
 static int					get_ret(const int check)
@@ -105,16 +89,13 @@ static int					get_ret(const int check)
 
 static int					get_cycles_to_go(t_vm *vm, t_pc *process, int flag)
 {
-	int				check;
+	int				tmp;
 	int				ret;
 
 	ret = 0;
-	check = process->command;
-	if (check == 1 || check == 2 || check == 3 || check == 4 || check == 5 || 
-		check == 6 || check == 7 || check == 8 || check == 9 || check == 10 ||
-		check == 11 || check == 12 || check == 13 || check == 14 || 
-		check == 15 || check == 16)
-		ret = get_ret(check);
+	tmp = process->command;
+	if (tmp >= 1  && tmp <= 16)
+		ret = get_ret(tmp);
 	else
 	{
 		ret = 0;

@@ -62,7 +62,7 @@ void				fork_op(t_vm *vm, t_pc *process)
 
 
 	new_node = NULL;
-	tmp_pos = process->cur_pos;
+	tmp_pos = process->cur_pos % MEM_SIZE;
 	arg = (short)get_arguments(vm, &tmp_pos, 2);
 	new_pc_pos = ((arg % IDX_MOD) + process->cur_pos) % MEM_SIZE;
 	if (new_pc_pos < 0)
@@ -79,7 +79,7 @@ void				lfork_op(t_vm *vm, t_pc *process)
 	short			new_pc_pos;
 	t_pc			*new_node;
 
-	tmp_pos = process->cur_pos;
+	tmp_pos = process->cur_pos % MEM_SIZE;
 	arg = (short)get_arguments(vm, &tmp_pos, 2);
 	new_pc_pos = (arg + process->cur_pos) % MEM_SIZE;
     if (new_pc_pos < 0)

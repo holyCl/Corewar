@@ -66,7 +66,7 @@ void				st_op(t_vm *vm, t_pc *process)//mb need update like in sti_op()
 
 	tmp_pos = process->cur_pos;
 	ft_bzero_int_arr(args_array, 2);
-	decodage_opcode(vm->map[++tmp_pos], args_array, 2);
+	decodage_opcode(vm->map[++tmp_pos % MEM_SIZE], args_array, 2);
 	if (st_validation(args_array, &tmp_pos))
 	{
 		args[0] = (unsigned char)get_arguments(vm, &tmp_pos, 1);

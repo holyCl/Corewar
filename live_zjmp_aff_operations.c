@@ -20,7 +20,7 @@ void				live_op(t_vm *vm, t_pc *process, unsigned int cycles_count)//“A proces
 
 //printf("live_op(%u). at pos=%u;\n", cycles_count, process->cur_pos);
 
-    tmp_pos = process->cur_pos;
+    tmp_pos = process->cur_pos % MEM_SIZE;
     // decode_args(args_array, codage, max_args);
     if (process->alive_bool == 0)
         process->alive_bool = 1;
@@ -30,10 +30,11 @@ void				live_op(t_vm *vm, t_pc *process, unsigned int cycles_count)//“A proces
     // printf("live arg=%u\n", temp);
     if (check_int == temp)
     {
-
-//    //delete me!
-//         ft_printf("A process shows that player %d (%s) is alive\n",
+        //check it once again !! even if youll keep this msg
+////    //delete me!
+//         ft_printf("at cycle=%u  A process shows that player %d (%s) is alive\n",cycles_count,
 //         	vm->players[process->player_id].id, vm->players[process->player_id].name);
+
 
         vm->players[process->player_id].alives++;
         vm->players[process->player_id].last_cycle_alive = cycles_count;
@@ -77,13 +78,13 @@ void				aff_op(t_vm *vm, t_pc *process)
 
     tmp_pos = process->cur_pos;
     opcode = 0;
-    decodage_opcode(vm->map[++tmp_pos], &opcode, 1);
+    decodage_opcode(vm->map[++tmp_pos % MEM_SIZE], &opcode, 1);
     if (opcode == REG_CODE)
     {
         ret = (unsigned char)get_arguments(vm, &tmp_pos, 1);
         if (ret >= 1 && ret <= 16)
             ret = process->reg[ret - 1] % 256;
-        if (vm->dump_flag == 0 && ret >= 1 && ret <= 16) //&& no visualization
+        if (vm->dump_flag == 0 && ret >= 1 && ret <= 16 && vm->visual_flag == 0) //&& no visualization
             ft_printf("%c\n");
     }
     process->cur_pos = (tmp_pos + 1) % MEM_SIZE;

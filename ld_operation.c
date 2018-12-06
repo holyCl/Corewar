@@ -67,7 +67,7 @@ void				ld_op(t_vm *vm, t_pc *process)
 
 	tmp_pos = process->cur_pos;
 	ft_bzero_int_arr(args_array, 2);
-	decodage_opcode(vm->map[++tmp_pos], args_array, 2);
+	decodage_opcode(vm->map[++tmp_pos % MEM_SIZE], args_array, 2);
 	if (ld_validation(args_array, &tmp_pos))
 	{
 		get_all_arguments_ld(vm, args_array, args, &tmp_pos);
@@ -115,7 +115,7 @@ void				lld_op(t_vm *vm, t_pc *process)
 
 	tmp_pos = process->cur_pos;
 	ft_bzero_int_arr(args_array, 2);
-	decodage_opcode(vm->map[++tmp_pos], args_array, 2);//there was codage instead of 'vm->map[++tmp_pos]' before //mb add this line to sti_validation?
+	decodage_opcode(vm->map[++tmp_pos % MEM_SIZE], args_array, 2);//there was codage instead of 'vm->map[++tmp_pos]' before //mb add this line to sti_validation?
 	if (ld_validation(args_array, &tmp_pos))
 	{
 		get_all_arguments_lld(vm, args_array, args, &tmp_pos);

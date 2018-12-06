@@ -27,11 +27,14 @@ SRCS = main.c \
 		fork_n_lfork_operations.c \
 		useful_functions.c \
 		check_n_move.c \
+		check_pc_lives_n_kill.c \
+		are_u_ready_for_rumble.c \
+		dump_end_free_functions.c \
 		
 
 OBJ =	$(SRCS:%.c=%.o)
 
-FLAGS = -Wall -Wextra -Werror
+FLAGS = -Wall -Wextra -Werror 
 
 HEADER = vm.h
 
@@ -40,11 +43,11 @@ HEADER = vm.h
 all: $(NAME)
 
 %.o:%.c
-	gcc -I. $(FLAGS) -g -c $< -o $@
+	gcc -I. $(FLAGS) -g -c $< -o $@ 
 
 $(NAME): $(OBJ) $(HEADER)
 	make -C libft
-	gcc  $(FLAGS) $(OBJ) libft/libft.a -o $(NAME) 
+	gcc -lncurses $(FLAGS) $(OBJ) libft/libft.a -o $(NAME)
 
 clean:
 	make clean -C libft/

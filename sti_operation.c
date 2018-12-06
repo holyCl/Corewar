@@ -48,9 +48,8 @@ static void				get_all_arguments_sti(t_vm *vm, int *args_array, unsigned int *ar
 		args[1] = (unsigned char)get_arguments(vm, tmp_pos, 1);
 	else if (args_array[1] == DIR_CODE)
         args[1] = get_arguments(vm, tmp_pos, 2);
-	else if (args_array[1] == IND_CODE)//almost sure something wrong with it!
+	else if (args_array[1] == IND_CODE)
 	{
-		//по карте перемещаемся на позицию ... и берем там аргумент
 		tmp_cur_pos = (short)get_arguments(vm, tmp_pos, 2);
 		tmp_cur_pos %= IDX_MOD;
 		args[1] = get_arguments(vm, &(tmp_cur_pos), 4);
@@ -58,7 +57,7 @@ static void				get_all_arguments_sti(t_vm *vm, int *args_array, unsigned int *ar
 	if (args_array[2] == REG_CODE)
 		args[2] = (unsigned char)get_arguments(vm, tmp_pos, 1);
 	else if (args_array[2] == DIR_CODE)
-		args[2] = get_arguments(vm, tmp_pos, 2);//was cast to (short)
+		args[2] = get_arguments(vm, tmp_pos, 2);
 }
 
 static void         store_value(t_vm *vm, unsigned int array, int position, unsigned char color)
@@ -117,7 +116,7 @@ void				sti_op(t_vm *vm, t_pc *process)
 
 	tmp_pos = process->cur_pos;
 	ft_bzero_int_arr(args_array, 3);
-	decodage_opcode(vm->map[++tmp_pos], args_array, 3);//there was codage instead of 'vm->map[++tmp_pos]' before //mb add this line to sti_validation?
+	decodage_opcode(vm->map[++tmp_pos % MEM_SIZE], args_array, 3);//there was codage instead of 'vm->map[++tmp_pos]' before //mb add this line to sti_validation?
 	if (sti_validation(args_array, &tmp_pos))
 	{
 		get_all_arguments_sti(vm, args_array, args, &tmp_pos);

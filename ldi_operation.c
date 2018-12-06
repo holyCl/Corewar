@@ -42,6 +42,7 @@ static void				get_all_arguments_ldi(t_vm *vm, int *args_array,
 	unsigned int	tmp_cur_pos;
 	short 			sh;
 
+	(*tmp_pos) %= MEM_SIZE;
 	if (args_array[0] == DIR_CODE)
 		args[0] = get_arguments(vm, tmp_pos, 2);
 	else if (args_array[0] == IND_CODE)
@@ -71,7 +72,7 @@ void				ldi_op(t_vm *vm, t_pc *process)//mb -1 for load position?  and cast it t
 
 	tmp_pos = process->cur_pos;
 	ft_bzero_int_arr(args_array, 3);
-	decodage_opcode(vm->map[++tmp_pos], args_array, 3);
+	decodage_opcode(vm->map[++tmp_pos % MEM_SIZE], args_array, 3);
 	if (ldi_validation(args_array, &tmp_pos))
 	{
 		get_all_arguments_ldi(vm, args_array, args, &tmp_pos);
@@ -144,7 +145,7 @@ void				lldi_op(t_vm *vm, t_pc *process)
 
 	tmp_pos = process->cur_pos;
 	ft_bzero_int_arr(args_array, 3);
-	decodage_opcode(vm->map[++tmp_pos], args_array, 3);
+	decodage_opcode(vm->map[++tmp_pos % MEM_SIZE], args_array, 3);
 	if (ldi_validation(args_array, &tmp_pos))
 	{
 		get_all_arguments_lldi(vm, args_array, args, &tmp_pos);
@@ -170,14 +171,13 @@ void				lldi_op(t_vm *vm, t_pc *process)
             else
                 tmp_cur_pos = (((short)(args[0] + (short)args[1])) + process->cur_pos) % MEM_SIZE;
         }
-        //delme mb?
         tmp_cur_pos -= 1;
-        if (tmp_cur_pos < 0)//was added recently
-            tmp_cur_pos = (MEM_SIZE + tmp_cur_pos);//was added recently
-        position = (unsigned int)tmp_cur_pos;//was added recently
+        if (tmp_cur_pos < 0)
+            tmp_cur_pos = (MEM_SIZE + tmp_cur_pos);
+        position = (unsigned int)tmp_cur_pos;
 		if (args[2] >= 1 && args[2] <= 16)
             process->reg[args[2] - 1] = get_arguments(vm, &position, 4);
 	}
-	process->cur_pos = (tmp_pos + 1) % MEM_SIZE;//mb need to add 1 if second arg is T_IND ?
+	process->cur_pos = (tmp_pos + 1) % MEM_SIZE;
 	process->cycles_to_go = -1;
 }
