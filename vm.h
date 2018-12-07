@@ -48,7 +48,6 @@ typedef struct		s_pc
     struct s_pc		*prev;
 }					t_pc;
 
-
 typedef struct		s_vm
 {
 	unsigned int	num_of_players;
