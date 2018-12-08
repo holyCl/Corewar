@@ -15,6 +15,7 @@
 #include <fcntl.h>
 #include "op.h"
 #include <curses.h>
+#include <math.h>
 
 
 typedef struct		s_player
@@ -41,11 +42,11 @@ typedef struct		s_pc
 	unsigned int	forked;
 	int				cycles_to_go;
 	unsigned int	pc_number;
-	unsigned int    invalid_cm_flag;
+	unsigned int	invalid_cm_flag;
 	//for color handle
-    unsigned char   color;
+	unsigned char	color;
 	struct s_pc		*next;
-    struct s_pc		*prev;
+	struct s_pc		*prev;
 }					t_pc;
 
 typedef struct		s_vm
@@ -56,11 +57,13 @@ typedef struct		s_vm
 	unsigned int	dump_num;
 	t_pc			*pc_head;
 	unsigned char	map[MEM_SIZE];
-	unsigned char   map_color[MEM_SIZE];
+	unsigned char	map_color[MEM_SIZE];
 	int				cycles_to_die;
 	unsigned int	max_checks;
 	unsigned int	last_player_alive_id;
 	unsigned int	visual_flag;
+	WINDOW			*win;
+	WINDOW			*sidebar;
 	int				pl_numbers[4];
 }					t_vm;
 
@@ -90,10 +93,12 @@ t_pc				*create_pc(t_vm *vm, t_player *player, unsigned int position);
 void				position_players(t_vm *vm);
 void				players_intro(t_vm *vm);
 void				pc_list_checker(t_vm *vm, unsigned int cycles_count);
-void	            error_exit(char *str, int fd);
+void				error_exit(char *str, int fd);
 void				zero_all_alives_screams(t_vm *vm);
 int					check_players_pc_lives(t_vm *vm);
 void				free_vm(t_vm *vm);
 void				end_this_game(t_vm *vm);
 void				write_cur_map(t_vm *vm);
 void				are_u_ready_for_rumble(t_vm *vm);
+
+void			cursus_print_map(t_vm *vm);

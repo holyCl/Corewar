@@ -99,6 +99,13 @@ void				are_u_ready_for_rumble(t_vm *vm)
         }
         //delete me
 //        printf("On %u Cycle\n", cycles_count);
+        
+
+
+        // if (vm->visual_flag)
+        // {
+        //     cursus_print_map(vm);
+        // }
         cycles_count++;
     }
 }

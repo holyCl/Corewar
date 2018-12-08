@@ -37,6 +37,12 @@ void				end_this_game(t_vm *vm)
     int				d;
     unsigned char	*s;
 
+    //change it to good msg to window!
+    if (vm->visual_flag)
+    {
+        delwin(vm->win);
+        endwin();
+    }
     last_id = vm->last_player_alive_id;
     d = vm->players[last_id].player_number * (-1);
     s = vm->players[last_id].name;
