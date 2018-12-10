@@ -15,8 +15,8 @@
 void				parse_arguments(int ac, char **av, t_vm *vm)
 {
 	unsigned int	count_players;
-	int	pl_num;
-	int			i;
+	int				pl_num;
+	int				i;
 
 	count_players = 0;
 	i = 0;
@@ -49,7 +49,7 @@ void				parse_arguments(int ac, char **av, t_vm *vm)
 			else
 				error_exit("Usage!", -1);
 		}
-		else if (ft_strcmp(av[i], "-v") == 0 && vm->dump_flag == 0 && vm->visual_flag == 0)
+		else if (ft_strcmp(av[i], "-visual") == 0 && vm->dump_flag == 0 && vm->visual_flag == 0)
 			vm->visual_flag = 1;
 		else
 			error_exit("Usage!", -1);

@@ -14,13 +14,13 @@
 
 void				are_u_ready_for_rumble(t_vm *vm)
 {
-    unsigned int	cycles_count;
-    unsigned int	general_cycles_count;
+	unsigned int	cycles_count;
+	unsigned int	general_cycles_count;
 
-    cycles_count = 0;
-    general_cycles_count = vm->cycles_to_die;
-    while (1)
-    {
+	cycles_count = 0;
+	general_cycles_count = vm->cycles_to_die;
+	while (1)
+	{
 
 // printf("CUR_cycle=%u\n", cycles_count);
 
@@ -29,45 +29,45 @@ void				are_u_ready_for_rumble(t_vm *vm)
 //     printf("NOW!\n");
 
 
-        if ((vm->cycles_to_die <= 0))
-        {
-            printf("\n1 ON %u CYCLE!\n", cycles_count);
-            end_this_game(vm);
-        }
-        else if (vm->pc_head == NULL)
-        {
-            printf("\n2 ON %u CYCLE!\n", cycles_count);
-            end_this_game(vm);
-        }
+		if ((vm->cycles_to_die <= 0))
+		{
+			// printf("\n1 ON %u CYCLE!\n", cycles_count);
+			end_this_game(vm);
+		}
+		else if (vm->pc_head == NULL)
+		{
+			// printf("\n2 ON %u CYCLE!\n", cycles_count);
+			end_this_game(vm);
+		}
 
-        pc_list_checker(vm, cycles_count);
+		pc_list_checker(vm, cycles_count);
 
-        if (cycles_count == general_cycles_count)
-        {
-            if (check_players_pc_lives(vm))
-            {
-                vm->cycles_to_die -= CYCLE_DELTA;
-                zero_all_alives_screams(vm);
-                vm->max_checks = 0;
-                general_cycles_count += vm->cycles_to_die;
-            }
-            else if (vm->max_checks == 10)
-            {
-                vm->cycles_to_die -= CYCLE_DELTA;
-                zero_all_alives_screams(vm);
-                vm->max_checks = 0;
-                general_cycles_count += vm->cycles_to_die;
-            }
-            else
-            {
-                vm->max_checks++;
-                zero_all_alives_screams(vm);
-                general_cycles_count += vm->cycles_to_die;
-            }
-        }
-        if (vm->dump_flag == 1 && vm->dump_num <= cycles_count)
-        {
-        //delete this! number of pc`s count
+		if (cycles_count == general_cycles_count)
+		{
+			if (check_players_pc_lives(vm))
+			{
+				vm->cycles_to_die -= CYCLE_DELTA;
+				zero_all_alives_screams(vm);
+				vm->max_checks = 0;
+				general_cycles_count += vm->cycles_to_die;
+			}
+			else if (vm->max_checks == 10)
+			{
+				vm->cycles_to_die -= CYCLE_DELTA;
+				zero_all_alives_screams(vm);
+				vm->max_checks = 0;
+				general_cycles_count += vm->cycles_to_die;
+			}
+			else
+			{
+				vm->max_checks++;
+				zero_all_alives_screams(vm);
+				general_cycles_count += vm->cycles_to_die;
+			}
+		}
+		if (vm->dump_flag == 1 && vm->dump_num <= cycles_count)
+		{
+		//delete this! number of pc`s count
 
 //            write_cur_map(vm);
 
@@ -85,56 +85,56 @@ void				are_u_ready_for_rumble(t_vm *vm)
 //            }
 //            printf("pc_sum==%d, CYCLE=%u, CYCLE_TO_DIE=%u\n", i, cycles_count, vm->cycles_to_die);
 
-            // write_cur_map(vm);
-            free_vm(vm);
-            exit(0);
-            // error_exit("\nDUMP IN DA E!\n", -1);
-        }
-        //delete me
+			// write_cur_map(vm);
+			free_vm(vm);
+			exit(0);
+			// error_exit("\nDUMP IN DA E!\n", -1);
+		}
+		//delete me
 //        printf("On %u Cycle\n", cycles_count);
-    
+	
 
-        int c;
-        if (vm->visual_flag)
-        {
-            c = getch();
-            if (c == 32)
-            {
-                if (vm->pause_flag)
-                {
-                    vm->pause_flag = 0;
-                    nodelay(stdscr, true);                        
-                }
-                else
-                {
-                    vm->pause_flag = 1;
-                    nodelay(stdscr, false);
-                }
-            }
-            else if (c == 27)
-            {
-                delwin(vm->win);
-                delwin(vm->sidebar);
-                endwin();
-                free_vm(vm);
-                exit(0);
-            }
-            else if (c == 81 || c == 82 || c == 87 || c == 69)
-            {
-                if (c == 81 && vm->speed <= 9000)
-                    vm->speed += 1000;
-                else if (c == 82 && vm->speed <= 1000)
-                    vm->speed -= 1000;
-                else if (c == 87 && vm->speed <= 9000)
-                    vm->speed += 100;
-                else if (c == 69 && vm->speed <= 1000)
-                    vm->speed -= 100;
-            }
-            cursus_print_map(vm, 0);
-            cursus_print_sidebar(vm, cycles_count);
-            usleep(vm->speed);
-        }
-        cycles_count++;
-    }
+		int c;
+		if (vm->visual_flag)
+		{
+			c = getch();
+			if (c == 32)
+			{
+				if (vm->pause_flag)
+				{
+					vm->pause_flag = 0;
+					nodelay(stdscr, true);
+				}
+				else
+				{
+					vm->pause_flag = 1;
+					nodelay(stdscr, false);
+				}
+			}
+			else if (c == 27)
+			{
+				delwin(vm->win);
+				delwin(vm->sidebar);
+				endwin();
+				free_vm(vm);
+				exit(0);
+			}
+			else if (c == 81 || c == 82 || c == 87 || c == 69)
+			{
+				if (c == 81 && vm->speed <= 9000)
+					vm->speed += 1000;
+				else if (c == 82 && vm->speed <= 1000)
+					vm->speed -= 1000;
+				else if (c == 87 && vm->speed <= 9000)
+					vm->speed += 100;
+				else if (c == 69 && vm->speed <= 1000)
+					vm->speed -= 100;
+			}
+			cursus_print_map(vm, 0);
+			cursus_print_sidebar(vm, cycles_count);
+			usleep(vm->speed);
+		}
+		cycles_count++;
+	}
 }
 

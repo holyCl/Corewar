@@ -17,7 +17,7 @@ void	error_exit(char *str, int fd)
 	if (ft_strcmp("Usage!", str) == 0)
 	{
 		ft_printf("Usage:\n./corewar [-dump nbr_cycles] ");
-		ft_printf("[[-n number] champion1.cor] ...\n");
+		ft_printf("[[-n number] champion1.cor] [-visual]...\n");
 	}
 	else if (str)
 		write(1, str, ft_strlen(str));
