@@ -15,7 +15,7 @@
 #include <fcntl.h>
 #include "op.h"
 #include <curses.h>
-#include <math.h>
+// #include <math.h>
 
 
 typedef struct		s_player
@@ -62,9 +62,12 @@ typedef struct		s_vm
 	unsigned int	max_checks;
 	unsigned int	last_player_alive_id;
 	unsigned int	visual_flag;
+	int				pl_numbers[4];
+	//for visual
 	WINDOW			*win;
 	WINDOW			*sidebar;
-	int				pl_numbers[4];
+	int				pause_flag;
+	int				speed;
 }					t_vm;
 
 void				parse_pl(char *av, t_vm *vm, unsigned int id, int pl_num);
@@ -101,4 +104,7 @@ void				end_this_game(t_vm *vm);
 void				write_cur_map(t_vm *vm);
 void				are_u_ready_for_rumble(t_vm *vm);
 
-void			cursus_print_map(t_vm *vm);
+void				cursus_print_map(t_vm *vm, int j);
+void				cursus_print_sidebar(t_vm *vm, unsigned int cycle);
+int		cursus_player_introduction(t_vm *vm);
+void	finish_curses(t_vm *vm, int d, unsigned char *s);

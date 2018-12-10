@@ -14,8 +14,8 @@
 
 int					check_players_pc_lives(t_vm *vm)
 {
-	unsigned int 	i;
-	t_pc            *temp;
+	unsigned int	i;
+	t_pc			*temp;
 
 	temp = vm->pc_head;
 	i = 0;
@@ -34,6 +34,8 @@ int					check_players_pc_lives(t_vm *vm)
 
 static void			kill_pc_n_del_from_list(t_vm *vm, t_pc *temp)
 {
+	temp->alive_screams = 0;
+	temp->alive_bool = 0;
 	if (!vm->pc_head || !temp)
 		return ;
 	if (temp->prev == NULL)
@@ -48,34 +50,7 @@ static void			kill_pc_n_del_from_list(t_vm *vm, t_pc *temp)
 		if (temp->next)
 			temp->next->prev = temp->prev;
 	}
-
-	// int            flag;
-
-	// flag = 1;
-	// temp->alive_bool = 0;
-	// temp->alive_screams = 0;
-	// if (temp->prev)
-	// {
-	//     temp->prev->next = temp->next;
-	//     if (temp->next != NULL)
-	//         temp->next->prev = temp->prev;
-	//     else
-	//         flag = 0;
-	// }
-	// else
-	// {
-	//     vm->pc_head = temp->next;
-	//     if (temp->next != NULL)
-	//         temp->next->prev = NULL;
-	//     else
-	//         flag = 0;
-	// }
-
-//    //delete me
-//    if (ft_strcmp((char*)vm->players[temp->player_id].name, "bigzork") == 0)
-//        printf("BIGZORKs pc KILLED! ");
 	free(temp);
-	// return (flag);
 }
 
 void				zero_all_alives_screams(t_vm *vm)
@@ -87,10 +62,12 @@ void				zero_all_alives_screams(t_vm *vm)
 	temp = vm->pc_head;
 	while (temp)
 	{
-		temp->alive_screams = 0;
-		temp->alive_bool = 0;
 		if (temp->alive_bool)
+		{
+			temp->alive_screams = 0;
+			temp->alive_bool = 0;
 			temp = temp->next;
+		}
 		else
 		{
 			del = temp;
