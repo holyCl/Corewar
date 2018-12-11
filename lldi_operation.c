@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ldi_operation.c                                    :+:      :+:    :+:   */
+/*   lldi_operation.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: inazarin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/11/12 20:00:10 by inazarin          #+#    #+#             */
-/*   Updated: 2018/11/12 20:00:22 by inazarin         ###   ########.fr       */
+/*   Created: 2018/12/11 17:46:37 by inazarin          #+#    #+#             */
+/*   Updated: 2018/12/11 17:46:48 by inazarin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,13 +36,12 @@ static int			ldi_validation(int *args, unsigned int *tmp_pos)
 	}
 }
 
-static void			get_all_arguments_ldi(t_vm *vm, int *args_array,
+static void			get_all_arguments_lldi(t_vm *vm, int *args_array,
 					unsigned int *args, unsigned int *tmp_pos)
 {
-	unsigned int	tmp_cur_pos;
 	short			sh;
+	unsigned int	tmp_cur_pos;
 
-	(*tmp_pos) %= MEM_SIZE;
 	if (args_array[0] == DIR_CODE)
 		args[0] = get_arguments(vm, tmp_pos, 2);
 	else if (args_array[0] == IND_CODE)
@@ -62,38 +61,36 @@ static void			get_all_arguments_ldi(t_vm *vm, int *args_array,
 	args[2] = (unsigned char)get_arguments(vm, tmp_pos, 1);
 }
 
-static int			helper_for_helper(t_pc *process, unsigned int *args,
+static int			helper_helper(t_pc *process, unsigned int *args,
 					int *args_array)
 {
-	int				one;
 	int				tmp;
 
-	one = (int)REG[args[0] - 1];
-	if (args_array[1] == REG_CODE && args[0] >= 1 && args[0] <= 16)
-		tmp = (((one + (int)REG[args[1] - 1]) % IDX_MOD) + POS);
+	if (args_array[1] == REG_CODE && args[1] >= 1 && args[1] <= 16)
+		tmp = ((((int)REG[args[0] - 1] + (int)REG[args[1] - 1])) + POS);
 	else
-		tmp = (((REG[args[0] - 1] + (short)args[1]) % IDX_MOD) + POS);
+		tmp = ((((int)REG[args[0] - 1] + (short)args[1])) + POS);
 	return (tmp);
 }
 
-static int			ldi_op_helper(t_pc *process, unsigned int *args,
+static int			lldi_op_helper(t_pc *process, unsigned int *args,
 					int *args_array, int tmp)
 {
-	if (args_array[0] == REG_CODE && args[1] >= 1 && args[1] <= 16)
-		tmp = helper_for_helper(process, args, args_array);
+	if (args_array[0] == REG_CODE && args[0] >= 1 && args[0] <= 16)
+		tmp = helper_helper(process, args, args_array);
 	else if (args_array[0] == IND_CODE)
 	{
 		if (args_array[1] == REG_CODE && args[1] >= 1 && args[1] <= 16)
-			tmp = ((((int)args[0] + (int)REG[args[1] - 1]) % IDX_MOD) + POS);
+			tmp = ((((int)args[0] + (int)REG[args[1] - 1])) + POS);
 		else
-			tmp = ((((int)args[0] + (short)args[1]) % IDX_MOD) + POS);
+			tmp = ((((int)args[0] + (short)args[1])) + POS);
 	}
 	else
 	{
 		if (args_array[1] == REG_CODE && args[1] >= 1 && args[1] <= 16)
-			tmp = ((((short)args[0] + (int)REG[args[1] - 1]) % IDX_MOD) + POS);
+			tmp = ((((short)args[0] + (int)REG[args[1] - 1])) + POS);
 		else
-			tmp = (((short)(args[0] + (short)args[1]) % IDX_MOD) + POS);
+			tmp = (((short)(args[0] + (short)args[1])) + POS);
 	}
 	tmp %= MEM_SIZE;
 	tmp -= 1;
@@ -102,7 +99,7 @@ static int			ldi_op_helper(t_pc *process, unsigned int *args,
 	return (tmp);
 }
 
-void				ldi_op(t_vm *vm, t_pc *process)
+void				lldi_op(t_vm *vm, t_pc *process)
 {
 	int				args_array[3];
 	unsigned int	args[3];
@@ -114,8 +111,8 @@ void				ldi_op(t_vm *vm, t_pc *process)
 	decodage_opcode(vm->map[++tmp_pos % MEM_SIZE], args_array, 3);
 	if (ldi_validation(args_array, &tmp_pos))
 	{
-		get_all_arguments_ldi(vm, args_array, args, &tmp_pos);
-		position = (unsigned int)ldi_op_helper(process, args, args_array, 0);
+		get_all_arguments_lldi(vm, args_array, args, &tmp_pos);
+		position = (unsigned int)lldi_op_helper(process, args, args_array, 0);
 		if (args[2] >= 1 && args[2] <= 16)
 			process->reg[args[2] - 1] = get_arguments(vm, &position, 4);
 	}

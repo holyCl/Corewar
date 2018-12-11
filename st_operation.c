@@ -12,9 +12,9 @@
 
 #include "vm.h"
 
-static int					st_validation(int *args, unsigned int *tmp_pos)//check it with invalid argument!
+static int			st_validation(int *args, unsigned int *tmp_pos)
 {
-    int	i;
+	int				i;
 
 	if (args[0] == REG_CODE && (args[1] == REG_CODE || args[1] == IND_CODE))
 		return (1);
@@ -34,35 +34,32 @@ static int					st_validation(int *args, unsigned int *tmp_pos)//check it with in
 	}
 }
 
-static void         st_op_ind_helper(t_vm *vm, t_pc *process, short *args)
+static void			st_op_ind_helper(t_vm *vm, t_pc *process, short *args)
 {
-    int	position;
-    int	i;
-    unsigned int	value;
+	int				pos;
+	int				i;
+	unsigned int	value;
 
-    if (args[0] >= 1 && args[0] <= 16)
-    {
+	if (args[0] >= 1 && args[0] <= 16)
+	{
 		value = process->reg[args[0] - 1];
-        position = process->cur_pos + (args[1] % IDX_MOD);
-        if (position < 0)
-            position = MEM_SIZE + position;
-        i = -1;
-        while (++i < 4)
-        {
-            vm->map[(position + i) % MEM_SIZE] = ((unsigned char *)&value)[3 - i];
-            vm->map_color[(position + i) % MEM_SIZE] = process->color;
-        }
-//without color
-//            vm->map[(position + i) % MEM_SIZE] = ((unsigned char *)&value)[3 - i];
-    }
+		pos = process->cur_pos + (args[1] % IDX_MOD);
+		if (pos < 0)
+			pos = MEM_SIZE + pos;
+		i = -1;
+		while (++i < 4)
+		{
+			vm->map[(pos + i) % MEM_SIZE] = ((unsigned char *)&value)[3 - i];
+			vm->map_color[(pos + i) % MEM_SIZE] = process->color;
+		}
+	}
 }
 
-void				st_op(t_vm *vm, t_pc *process)//mb need update like in sti_op()
+void				st_op(t_vm *vm, t_pc *process)
 {
 	int				args_array[2];
 	short			args[2];
 	unsigned int	tmp_pos;
-
 
 	tmp_pos = process->cur_pos;
 	ft_bzero_int_arr(args_array, 2);
@@ -73,13 +70,14 @@ void				st_op(t_vm *vm, t_pc *process)//mb need update like in sti_op()
 		if (args_array[1] == REG_CODE)
 		{
 			args[1] = (unsigned char)get_arguments(vm, &tmp_pos, 1);
-			if ((args[0] >= 1 && args[0] <= 16) && (args[1] >= 1 && args[1] <= 16))
-			    process->reg[args[1] - 1] = process->reg[args[0] - 1];
+			if ((args[0] >= 1 && args[0] <= 16) &&
+				(args[1] >= 1 && args[1] <= 16))
+				process->reg[args[1] - 1] = process->reg[args[0] - 1];
 		}
 		else if (args_array[1] == IND_CODE)
 		{
 			args[1] = (short)get_arguments(vm, &tmp_pos, 2);
-            st_op_ind_helper(vm, process, args);
+			st_op_ind_helper(vm, process, args);
 		}
 	}
 	process->cur_pos = (tmp_pos + 1) % MEM_SIZE;

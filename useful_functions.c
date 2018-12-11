@@ -12,18 +12,24 @@
 
 #include "vm.h"
 
-void	error_exit(char *str, int fd)
+void				parse_exec_code(int fd, t_player *player)
 {
-	if (ft_strcmp("Usage!", str) == 0)
+	ssize_t			rd;
+	unsigned char	check[1];
+	int				i;
+
+	i = player->size + 1;
+	player->exec_code = (unsigned char *)malloc(sizeof(unsigned char) * (i));
+	if (!player->exec_code)
+		error_exit("Error while executable code parsing\n", fd);
+	rd = read(fd, player->exec_code, player->size);
+	if (rd != (ssize_t)player->size)
+		error_exit("Error executable reading.\n", fd);
+	if (read(fd, &check, 1) != 0)
 	{
-		ft_printf("Usage:\n./corewar [-dump nbr_cycles] ");
-		ft_printf("[[-n number] champion1.cor] [-visual]...\n");
+		printf("player='%s'\n", player->name);
+		error_exit("Not null after exec, its not so good mate.", fd);
 	}
-	else if (str)
-		write(1, str, ft_strlen(str));
-	if (fd >= 0)
-		close(fd);
-	exit(0);
 }
 
 unsigned int		get_arguments(t_vm *vm, unsigned int *pos, int label)
@@ -39,7 +45,7 @@ unsigned int		get_arguments(t_vm *vm, unsigned int *pos, int label)
 	else if (label == 4)
 	{
 		ret = (vm->map[++(*pos) % MEM_SIZE] << 24) |
-		(vm->map[++(*pos) % MEM_SIZE] << 16) | 
+		(vm->map[++(*pos) % MEM_SIZE] << 16) |
 		(vm->map[++(*pos) % MEM_SIZE] << 8) | (vm->map[++(*pos) % MEM_SIZE]);
 	}
 	return (ret);
@@ -48,7 +54,7 @@ unsigned int		get_arguments(t_vm *vm, unsigned int *pos, int label)
 void				decodage_opcode(unsigned char codage, int *array, int max)
 {
 	unsigned char	check;
-	int	            i;
+	int				i;
 
 	i = 0;
 	while (codage && i < max)
@@ -67,9 +73,9 @@ void				decodage_opcode(unsigned char codage, int *array, int max)
 	}
 }
 
-void 				ft_bzero_int_arr(int *args_array, const int max)
+void				ft_bzero_int_arr(int *args_array, const int max)
 {
-	int 			i;
+	int				i;
 
 	i = 0;
 	while (i < max)
@@ -79,31 +85,29 @@ void 				ft_bzero_int_arr(int *args_array, const int max)
 	}
 }
 
-t_pc				*create_pc(t_vm *vm, t_player *player, unsigned int position)
+t_pc				*create_pc(t_vm *vm, t_player *player, unsigned int pos)
 {
-	t_pc			*new_node;
+	t_pc			*new;
 
-	new_node = (t_pc *)malloc(sizeof(t_pc));
-	if (!new_node)
+	new = (t_pc *)malloc(sizeof(t_pc));
+	if (!new)
 		error_exit("Error during creating new process", -1);
-	ft_bzero(new_node, sizeof(t_pc));
-	ft_bzero(new_node->reg, REG_NUMBER);
-	new_node->reg[0] = player->player_number;
-	new_node->player_id = player->id;
-	new_node->cur_pos = position;
-	new_node->cycles_to_go = -1;
-	new_node->alive_bool = 1;
-	new_node->command = player->exec_code[0];
-	//color here! need to change it!
-	new_node->color = player->id + 1;
+	ft_bzero(new, sizeof(t_pc));
+	ft_bzero(new->reg, REG_NUMBER);
+	new->reg[0] = player->player_number;
+	new->player_id = player->id;
+	new->cur_pos = pos;
+	new->cycles_to_go = -1;
+	new->alive_bool = 1;
+	new->command = player->exec_code[0];
+	new->color = player->id + 1;
 	if (vm->pc_head)
 	{
-		vm->pc_head->prev = new_node;
-		new_node->next = vm->pc_head;
+		vm->pc_head->prev = new;
+		new->next = vm->pc_head;
 	}
-	vm->pc_head = new_node;
-	new_node->prev = NULL;
-	new_node->pc_number = (new_node->next) ? (new_node->next->pc_number + 1) : 1;
-	return (new_node);
+	vm->pc_head = new;
+	new->prev = NULL;
+	new->pc_number = (new->next) ? (new->next->pc_number + 1) : 1;
+	return (new);
 }
-

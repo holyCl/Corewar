@@ -15,7 +15,7 @@
 static int			aox_op_validation(const int *args, unsigned int *tmp_pos)
 {
 	unsigned int	step;
-	int	i;
+	int				i;
 
 	step = 0;
 	if ((args[0] == REG_CODE || args[0] == DIR_CODE || args[0] == IND_CODE) &&
@@ -58,21 +58,23 @@ static void			get_all_arguments_aox(t_vm *vm, const int *args_array,
 		args[2] = (unsigned char)get_arguments(vm, tmp_pos, 1);
 }
 
-static void			xor_op_helper(const int *args_array, const unsigned int *args, t_pc *process)
+static void			xor_op_helper(const int *args_array,
+					const unsigned int *args, t_pc *process)
 {
-	if (args_array[0] == REG_CODE && args[2] >= 1 && args[2] <= 16 && args[0] >= 1 && args[0] <= 16)
+	if (args_array[0] == REG_CODE && args[2] >= 1 && args[2] <= 16 &&
+		args[0] >= 1 && args[0] <= 16)
 	{
 		if (args_array[1] == REG_CODE && args[1] >= 1 && args[1] <= 16)
-			process->reg[args[2] - 1] = process->reg[args[0] - 1] ^ process->reg[args[1] - 1];
+			REG[args[2] - 1] = REG[args[0] - 1] ^ REG[args[1] - 1];
 		else
-			process->reg[args[2] - 1] = process->reg[args[0] - 1] ^ args[1];
+			REG[args[2] - 1] = REG[args[0] - 1] ^ args[1];
 	}
 	else if (args[2] >= 1 && args[2] <= 16)
 	{
 		if (args_array[1] == REG_CODE && args[1] >= 1 && args[1] <= 16)
-			process->reg[args[2] - 1] = args[0] ^ process->reg[args[1] - 1];
+			REG[args[2] - 1] = args[0] ^ REG[args[1] - 1];
 		else
-			process->reg[args[2] - 1] = args[0] ^ args[1];
+			REG[args[2] - 1] = args[0] ^ args[1];
 	}
 }
 
@@ -90,7 +92,7 @@ void				xor_op(t_vm *vm, t_pc *process)
 	if (aox_op_validation(args_array, &tmp_pos))
 	{
 		get_all_arguments_aox(vm, args_array, args, &tmp_pos);
-        xor_op_helper(args_array, args, process);
+		xor_op_helper(args_array, args, process);
 		if (args[2] >= 1 && args[2] <= 16)
 		{
 			if (process->reg[args[2] - 1] == 0)

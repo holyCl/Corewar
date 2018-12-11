@@ -12,7 +12,7 @@
 
 #include "vm.h"
 
-static int 			add_sub_op_validation(int *args, unsigned int *tmp_pos)
+static int			add_sub_op_validation(int *args, unsigned int *tmp_pos)
 {
 	if (args[0] == REG_CODE && args[1] == REG_CODE && args[2] == REG_CODE)
 		return (1);
@@ -52,13 +52,13 @@ void				add_op(t_vm *vm, t_pc *process)
 	{
 		get_all_arguments_add_sub(vm, args_array, args, &tmp_pos);
 		if ((args[0] >= 1 && args[0] <= 16) && (args[1] >= 1 && args[1] <= 16))
-        {
-            process->reg[args[2] - 1] = process->reg[args[0] - 1] + process->reg[args[1] - 1];
-            if (process->reg[args[2] - 1] == 0)
-                process->carry = 1;
-            else
-                process->carry = 0;
-        }
+		{
+			REG[args[2] - 1] = REG[args[0] - 1] + REG[args[1] - 1];
+			if (REG[args[2] - 1] == 0)
+				process->carry = 1;
+			else
+				process->carry = 0;
+		}
 	}
 	process->cur_pos = (tmp_pos + 1) % MEM_SIZE;
 	process->cycles_to_go = -1;
@@ -79,15 +79,14 @@ void				sub_op(t_vm *vm, t_pc *process)
 	{
 		get_all_arguments_add_sub(vm, args_array, args, &tmp_pos);
 		if ((args[0] >= 1 && args[0] <= 16) && (args[1] >= 1 && args[1] <= 16))
-        {
-            process->reg[args[2] - 1] = process->reg[args[0] - 1] - process->reg[args[1] - 1];
-            if (process->reg[args[2] - 1] == 0)
-                process->carry = 1;
-            else
-                process->carry = 0;
-        }
+		{
+			REG[args[2] - 1] = REG[args[0] - 1] - REG[args[1] - 1];
+			if (REG[args[2] - 1] == 0)
+				process->carry = 1;
+			else
+				process->carry = 0;
+		}
 	}
 	process->cur_pos = (tmp_pos + 1) % MEM_SIZE;
 	process->cycles_to_go = -1;
 }
-

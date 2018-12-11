@@ -14,10 +14,14 @@
 
 void				free_vm(t_vm *vm)
 {
-	unsigned int    i;
-	t_pc            *tmp;
+	unsigned int	i;
+	t_pc			*tmp;
 
 	i = 0;
+	if (vm->visual_flag)
+	{
+		endwin();
+	}
 	while (i < vm->num_of_players)
 	{
 		free(vm->players[i].exec_code);
@@ -42,20 +46,14 @@ void				end_this_game(t_vm *vm)
 	s = vm->players[last_id].name;
 	if (vm->visual_flag)
 	{
-		finish_curses(vm, d, s);
+		mvwprintw(vm->sidebar, 50, 1, "Contestant %d, \"%s\",\n has won !\n",
+			d, s);
+		wrefresh(vm->sidebar);
+		system("afplay music/best.mp3&");
+		nodelay(stdscr, false);
 	}
 	else
-	{
 		ft_printf("Contestant %d, \"%s\", has won !\n", d, s);
-		// write(1, "Contestant ", ft_strlen("Contestant "));
-		// write(1, ft_itoa(d), ft_strlen(ft_itoa(d)));
-		// write(1, ", ", 2);
-		// write(1, "\"", 1);
-		// write(1, s, ft_strlen((char *)s));
-		// write(1, "\"", 1);
-		// write(1, ", has won !", ft_strlen(", has won !"));
-		// write(1, "\n", 1);
-	}
 	free_vm(vm);
 	exit(0);
 }

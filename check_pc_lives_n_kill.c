@@ -50,6 +50,7 @@ static void			kill_pc_n_del_from_list(t_vm *vm, t_pc *temp)
 		if (temp->next)
 			temp->next->prev = temp->prev;
 	}
+	system("afplay music/smash2.mp3&");
 	free(temp);
 }
 

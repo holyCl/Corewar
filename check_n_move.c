@@ -12,7 +12,7 @@
 
 #include "vm.h"
 
-static void				choose_helper(t_vm *vm, t_pc *process, unsigned int a)
+static void			choose_helper(t_vm *vm, t_pc *process, unsigned int a)
 {
 	if (a == 9)
 		zjmp_op(vm, process);
@@ -32,15 +32,12 @@ static void				choose_helper(t_vm *vm, t_pc *process, unsigned int a)
 		aff_op(vm, process);
 }
 
-static void				choose_pc(t_vm *vm, t_pc *process, unsigned int cycles)
+static void			choose_pc(t_vm *vm, t_pc *process, unsigned int cycles)
 {
 	unsigned int	a;
 
 	a = 0;
 	a = process->command;
-
-//printf("!!>>feel_n_fill(%u). cm=%u, pl_num=%u; forked_flag==%u\n", cycles_count, a, process->pc_number, process->forked);
-
 	if (a == 1)
 		live_op(vm, process, cycles);
 	else if (a == 2)
@@ -61,9 +58,9 @@ static void				choose_pc(t_vm *vm, t_pc *process, unsigned int cycles)
 		choose_helper(vm, process, a);
 }
 
-static int					get_ret(const int check)
+static int			get_ret(const int check)
 {
-	int						ret;
+	int				ret;
 
 	ret = 0;
 	if (check == 1 || check == 4 || check == 5 || check == 13)
@@ -87,14 +84,14 @@ static int					get_ret(const int check)
 	return (ret);
 }
 
-static int					get_cycles_to_go(t_vm *vm, t_pc *process, int flag)
+static int			get_cycles_to_go(t_vm *vm, t_pc *process, int flag)
 {
 	int				tmp;
 	int				ret;
 
 	ret = 0;
 	tmp = process->command;
-	if (tmp >= 1  && tmp <= 16)
+	if (tmp >= 1 && tmp <= 16)
 		ret = get_ret(tmp);
 	else
 	{
