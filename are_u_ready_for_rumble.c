@@ -72,28 +72,20 @@ static void			game_checker(t_vm *vm, unsigned int *cycle_to_check)
 	}
 }
 
-void				are_u_ready_for_rumble(t_vm *vm)
+void				are_u_ready_for_rumble(t_vm *vm, unsigned int cur_cycle)
 {
-	unsigned int	cur_cycle;
 	unsigned int	cycle_to_check;
 
-	cur_cycle = 0;
 	cycle_to_check = vm->cycles_to_die;
 	while (1)
 	{
-		if ((vm->cycles_to_die <= 0))
-			end_this_game(vm);
-		else if (vm->pc_head == NULL)
+		if ((vm->cycles_to_die <= 0) || vm->pc_head == NULL)
 			end_this_game(vm);
 		pc_list_checker(vm, cur_cycle);
 		if (cur_cycle == cycle_to_check)
 			game_checker(vm, &cycle_to_check);
 		if (vm->dump_flag == 1 && vm->dump_num <= cur_cycle)
-		{
 			write_cur_map(vm);
-			free_vm(vm);
-			exit(0);
-		}
 		if (vm->visual_flag)
 			rumble_visual_handler(vm, cur_cycle);
 		cur_cycle++;

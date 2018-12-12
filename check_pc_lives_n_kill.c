@@ -50,16 +50,25 @@ static void			kill_pc_n_del_from_list(t_vm *vm, t_pc *temp)
 		if (temp->next)
 			temp->next->prev = temp->prev;
 	}
-	system("afplay music/smash2.mp3&");
 	free(temp);
+}
+
+static void			zero_all_lives(t_vm *vm)
+{
+	int				i;
+
+	i = -1;
+	while (++i < (int)vm->num_of_players)
+		vm->players[i].alives = 0;
 }
 
 void				zero_all_alives_screams(t_vm *vm)
 {
 	t_pc			*temp;
 	t_pc			*del;
-	int				i;
+	int				flag;
 
+	flag = 0;
 	temp = vm->pc_head;
 	while (temp)
 	{
@@ -74,9 +83,10 @@ void				zero_all_alives_screams(t_vm *vm)
 			del = temp;
 			temp = temp->next;
 			kill_pc_n_del_from_list(vm, del);
+			flag = 1;
 		}
 	}
-	i = -1;
-	while (++i < (int)vm->num_of_players)
-		vm->players[i].alives = 0;
+	if (flag == 1 && vm->visual_flag)
+		system("afplay music/smash2.mp3&");
+	zero_all_lives(vm);
 }

@@ -70,8 +70,9 @@ int					main(int ac, char **av)
 	if (vm->visual_flag)
 	{
 		visualizer(vm);
+		system("afplay music/Rumble.mp3&");
 	}
-	are_u_ready_for_rumble(vm);
+	are_u_ready_for_rumble(vm, 0);
 	free_vm(vm);
 	return (0);
 }

@@ -10,7 +10,7 @@
 #                                                                              #
 # **************************************************************************** #
 
-NAME = my_vm
+NAME = corewar
 
 SRCS = main.c \
 		players_parse.c \
@@ -18,6 +18,7 @@ SRCS = main.c \
 		live_zjmp_aff_operations.c \
 		ld_operation.c \
 		ldi_operation.c \
+		lldi_operation.c \
 		sti_operation.c \
 		st_operation.c \
 		and_operation.c \
@@ -30,6 +31,8 @@ SRCS = main.c \
 		check_pc_lives_n_kill.c \
 		are_u_ready_for_rumble.c \
 		dump_end_free_functions.c \
+		visualizer.c \
+		visualizer_print.c
 		
 
 OBJ =	$(SRCS:%.c=%.o)
@@ -47,7 +50,7 @@ all: $(NAME)
 
 $(NAME): $(OBJ) $(HEADER)
 	make -C libft
-	gcc -lncurses $(FLAGS) $(OBJ) libft/libft.a -o $(NAME)
+	gcc $(FLAGS) $(OBJ) libft/libft.a -o $(NAME) -lncurses
 
 clean:
 	make clean -C libft/

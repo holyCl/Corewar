@@ -16,6 +16,7 @@ void				free_vm(t_vm *vm)
 {
 	unsigned int	i;
 	t_pc			*tmp;
+	t_pc			*del;
 
 	i = 0;
 	if (vm->visual_flag)
@@ -27,12 +28,36 @@ void				free_vm(t_vm *vm)
 		free(vm->players[i].exec_code);
 		i++;
 	}
-	while (vm->pc_head)
+	tmp = vm->pc_head;
+	while (tmp)
 	{
-		tmp = vm->pc_head->next;
-		free(vm->pc_head);
-		vm->pc_head = tmp;
+		del = tmp->next;
+		free(tmp);
+		tmp = del;
 	}
+}
+
+static void			clear_vis_n_end(t_vm *vm)
+{
+	delwin(vm->win);
+	delwin(vm->sidebar);
+	endwin();
+	free_vm(vm);
+	exit(0);
+}
+
+static void			print_winner(t_vm *vm, unsigned char *s)
+{
+	int				c;
+
+	wattron(vm->sidebar, A_BOLD);
+	mvwprintw(vm->sidebar, 45, 1, "The winner is: %s", s);
+	wrefresh(vm->sidebar);
+	wattroff(vm->sidebar, A_BOLD);
+	c = getch();
+	nodelay(stdscr, false);
+	if (c == 27)
+		clear_vis_n_end(vm);
 }
 
 void				end_this_game(t_vm *vm)
@@ -45,17 +70,17 @@ void				end_this_game(t_vm *vm)
 	d = vm->players[last_id].player_number * (-1);
 	s = vm->players[last_id].name;
 	if (vm->visual_flag)
-	{
-		mvwprintw(vm->sidebar, 50, 1, "Contestant %d, \"%s\",\n has won !\n",
-			d, s);
-		wrefresh(vm->sidebar);
 		system("afplay music/best.mp3&");
-		nodelay(stdscr, false);
+	if (vm->visual_flag)
+	{
+		print_winner(vm, s);
 	}
 	else
+	{
 		ft_printf("Contestant %d, \"%s\", has won !\n", d, s);
-	free_vm(vm);
-	exit(0);
+		free_vm(vm);
+		exit(0);
+	}
 }
 
 void				write_cur_map(t_vm *vm)
@@ -76,4 +101,6 @@ void				write_cur_map(t_vm *vm)
 		i++;
 	}
 	write(1, "\n", 1);
+	free_vm(vm);
+	exit(0);
 }

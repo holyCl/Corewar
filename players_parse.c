@@ -65,8 +65,10 @@ static void			parse_size(int fd, t_player *player)
 	((unsigned char *)&player->size)[1] = ((unsigned char *)&endian)[2];
 	((unsigned char *)&player->size)[2] = ((unsigned char *)&endian)[1];
 	((unsigned char *)&player->size)[3] = ((unsigned char *)&endian)[0];
-	if (!player->size || (int)player->size > CHAMP_MAX_SIZE)
+	if ((int)player->size > CHAMP_MAX_SIZE)
 		error_exit("Error. Invalid champ size.", fd);
+	if (player->size == 0)
+		player->zero_flag = 1;
 }
 
 static t_player		player_struct_init(int fd, t_player *new_node)

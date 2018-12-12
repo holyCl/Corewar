@@ -98,8 +98,8 @@ t_pc				*create_pc(t_vm *vm, t_player *player, unsigned int pos)
 	new->player_id = player->id;
 	new->cur_pos = pos;
 	new->cycles_to_go = -1;
-	new->alive_bool = 1;
-	new->command = player->exec_code[0];
+	new->alive_bool = (player->size > 0) ? 1 : 0;
+	new->command = (player->exec_code) ? player->exec_code[0] : 0;
 	new->color = player->id + 1;
 	if (vm->pc_head)
 	{
