@@ -86,7 +86,7 @@ void				are_u_ready_for_rumble(t_vm *vm, unsigned int cur_cycle)
 			game_checker(vm, &cycle_to_check);
 		if (vm->dump_flag == 1 && vm->dump_num <= cur_cycle)
 			write_cur_map(vm);
-		if (vm->visual_flag)
+		if (vm->visual_flag == 1)
 			rumble_visual_handler(vm, cur_cycle);
 		cur_cycle++;
 	}

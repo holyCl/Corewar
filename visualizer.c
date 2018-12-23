@@ -96,8 +96,6 @@ void			visualizer(t_vm *vm)
 	refresh();
 	box(vm->win, 0, 0);
 	box(vm->sidebar, 0, 0);
-	wprintw(vm->win, "virtual_machine");
-	wprintw(vm->sidebar, "simple sidebar");
 	cursus_print_map(vm, 0);
 	cursus_print_sidebar(vm, 0, 0);
 	getch();

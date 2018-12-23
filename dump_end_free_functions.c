@@ -69,9 +69,9 @@ void				end_this_game(t_vm *vm)
 	last_id = vm->last_player_alive_id;
 	d = vm->players[last_id].player_number * (-1);
 	s = vm->players[last_id].name;
-	if (vm->visual_flag)
+	if (vm->visual_flag == 1)
 		system("afplay music/best.mp3&");
-	if (vm->visual_flag)
+	if (vm->visual_flag == 1)
 	{
 		print_winner(vm, s);
 	}

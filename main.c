@@ -66,12 +66,15 @@ int					main(int ac, char **av)
 		error_exit("Usage!", -1);
 	}
 	position_players(vm, 0);
-	players_intro(vm);
+	if (vm->num_of_players > 4)
+		vm->visual_flag = 0;
 	if (vm->visual_flag)
 	{
 		visualizer(vm);
 		system("afplay music/Rumble.mp3&");
 	}
+	else
+		players_intro(vm);
 	are_u_ready_for_rumble(vm, 0);
 	free_vm(vm);
 	return (0);

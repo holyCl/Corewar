@@ -28,7 +28,7 @@ static void			number(char **av, t_vm *vm, int *i, unsigned int *num)
 	if (ft_strstr(av[(*i) + 1], ".cor"))
 	{
 		(*num)++;
-		if ((*num) <= 4)
+		if ((*num) <= MAX_PLAYERS)
 		{
 			(*i)++;
 			parse_pl(av[(*i)], vm, (*num), pl_num);
@@ -43,7 +43,7 @@ static void			number(char **av, t_vm *vm, int *i, unsigned int *num)
 static void			check_num(char **av, t_vm *vm, int *i, unsigned int *num)
 {
 	(*num)++;
-	if ((*num) <= 4)
+	if ((*num) <= MAX_PLAYERS)
 		parse_pl(av[(*i)], vm, (*num), 0);
 	else
 		error_exit("Too many players\n", -1);
@@ -78,7 +78,7 @@ void				parse_arguments(int ac, char **av, t_vm *vm)
 		else
 			error_exit("Usage!", -1);
 	}
-	if (count_players > 4)
+	if (count_players > MAX_PLAYERS)
 		error_exit("Too many players\n", -1);
 	else
 		vm->num_of_players = count_players;
