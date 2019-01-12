@@ -87,6 +87,6 @@ void				zero_all_alives_screams(t_vm *vm)
 		}
 	}
 	if (flag == 1 && vm->visual_flag)
-		system("afplay music/smash2.mp3&");
+		system("afplay vm_dir/vm_scr/music/smash2.mp3");
 	zero_all_lives(vm);
 }

@@ -70,7 +70,7 @@ void				end_this_game(t_vm *vm)
 	d = vm->players[last_id].player_number * (-1);
 	s = vm->players[last_id].name;
 	if (vm->visual_flag == 1)
-		system("afplay music/best.mp3&");
+		system("afplay vm_dir/vm_scr/music/best.mp3");
 	if (vm->visual_flag == 1)
 	{
 		print_winner(vm, s);

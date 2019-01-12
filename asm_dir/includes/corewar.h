@@ -17,8 +17,6 @@
 # include "asm.h"
 # include "libftprintf.h"
 
-# include <stdio.h>
-
 /*
 ****************************** INTEGER CONSTANTS *******************************
 */
@@ -29,13 +27,5 @@
 # define ERROR 1
 # define EQUAL 0
 # define MALLOC_ERROR -1
-
-/*
-****************************** TYPEDEFS ****************************************
-*/
-
-/*
-****************************** STRUCTURES **************************************
-*/
 
 #endif

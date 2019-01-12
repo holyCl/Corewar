@@ -74,33 +74,61 @@ int		record_label(int *i, char *src, t_asm_str **asm_str)
 	return (fl);
 }
 
-void	record_asm_str(char *src, t_asm_str **asm_str, int nb)
+int 	record_arg_type(char arg_char, t_asm_str **asm_str, int a)
 {
-	int		i;
-	int		n;
-	int		a;
-	int		len;
-	char	*op;
-	char	**args;
-	int		fl;
-	int		temp;
-	int		oper;
+	if (arg_char == REG_CHAR)
+	{
+		(*asm_str)->type_arg[a] = REG_CODE;
+		(*asm_str)->size += REG_SIZE;
+		return (1);
+	}
+	if (arg_char == DIRECT_CHAR)
+	{
+		(*asm_str)->type_arg[a] = DIR_CODE;
+		(*asm_str)->size += DIR_SIZE((*asm_str)->label_size);
+		return (1);
+	}
+	(*asm_str)->type_arg[a] = IND_CODE;
+	(*asm_str)->size += IND_SIZE;
+	return (0);
+}
 
-	temp = 0;
-	oper = 0;
-	i = 0;
+int		parse_args(char *src, t_asm_str **asm_str, int len, int *temp)
+{
+	int 	n;
+	int 	a;
+	char	**args;
+
+	n = 0;
 	a = 0;
-	(*asm_str)->nb = nb;
-	if (src[i] == LABEL_CHAR)
-		error_type(INC_LABELNAME, (*asm_str)->nb);
-	fl = record_label(&i, src, asm_str);
-	i++;
-	i *= (fl == 2) ? 0 : 1;
-	while (src[i] == ' ' || src[i] == '\t')
-		i++;
-	len = ft_wordlen(&src[i]);
+	args = ft_strsplit(src, SEPARATOR_CHAR);
+	while (args[n])
+	{
+		*temp = 1;
+		len = 0;
+		while (args[n][len] && (args[n][len] == ' ' || args[n][len] == '\t'))
+			len++;
+		len += record_arg_type(args[n][len], asm_str, a);
+		if (ft_strlen_space(args[n]) == 1)
+			error_type(LEXIC, (*asm_str)->nb);
+		(*asm_str)->arg_cont[a] = ft_atoi(&args[n][len]);
+		if (args[n][len] == LABEL_CHAR)
+			(*asm_str)->pointer[a] = ft_strdup(&args[n][++len]);
+		a++;
+		n++;
+	}
+	free_2d_array(&args);
+	return (n);
+}
+
+int 	identify_operation(int len, char *src, t_asm_str **asm_str)
+{
+	int 	oper;
+	char	*op;
+
+	oper = 0;
 	op = ft_strnew(len);
-	ft_strncpy(op, &src[i], len);
+	ft_strncpy(op, src, len);
 	while (oper < 17)
 	{
 		if (ft_strcmp(g_op_tab[oper].name, op) == EQUAL)
@@ -111,53 +139,42 @@ void	record_asm_str(char *src, t_asm_str **asm_str, int nb)
 		}
 		oper++;
 	}
+	ft_strdel(&op);
+	return (oper);
+}
+
+void	record_asm_str(char *src, t_asm_str **asm_str, int nb)
+{
+	int		i;
+	int		len;
+	int		fl;
+	int		temp;
+	int		oper;
+
+	temp = 0;
+	i = 0;
+	(*asm_str)->nb = nb;
+	if (src[i] == LABEL_CHAR)
+		error_type(INC_LABELNAME, (*asm_str)->nb);
+	fl = record_label(&i, src, asm_str);
+	i++;
+	i *= (fl == 2) ? 0 : 1;
+	while (src[i] == ' ' || src[i] == '\t')
+		i++;
+	len = ft_wordlen(&src[i]);
+	oper = identify_operation(len, &src[i], asm_str);
 	if (g_op_tab[oper].codage)
 	{
 		(*asm_str)->codage = 1;
 		(*asm_str)->size += 1;
 	}
 	(*asm_str)->label_size = g_op_tab[oper].label_size;
-	n = 0;
 	i += len + 1;
-	args = ft_strsplit(&src[i], SEPARATOR_CHAR);
-	while (args[n])
-	{
-		temp = 1;
-		len = 0;
-		while (args[n][len] && (args[n][len] == ' ' || args[n][len] == '\t'))
-			len++;
-		if (args[n][len] == REG_CHAR)
-		{
-			(*asm_str)->type_arg[a] = REG_CODE;
-			(*asm_str)->size += REG_SIZE;
-			len++;
-		}
-		else if (args[n][len] == DIRECT_CHAR)
-		{
-			(*asm_str)->type_arg[a] = DIR_CODE;
-			(*asm_str)->size += DIR_SIZE((*asm_str)->label_size);
-			len++;
-		}
-		else
-		{
-			(*asm_str)->type_arg[a] = IND_CODE;
-			(*asm_str)->size += IND_SIZE;
-		}
-		if (ft_strlen_space(args[n]) == 1)
-			error_type(LEXIC, (*asm_str)->nb);
-		(*asm_str)->arg_cont[a] = ft_atoi(&args[n][len]);
-		if (args[n][len] == LABEL_CHAR)
-		{
-			(*asm_str)->pointer[a] = ft_strdup(&args[n][++len]);
-		}
-		a++;
-		n++;
-	}
+	if (g_op_tab[oper].arg_nb != parse_args(&src[i], asm_str, len, &temp))
+		error_type(INC_ARGS, (*asm_str)->nb);
 	if (oper == 17)
 		error_type(OP_EXIST, (*asm_str)->nb);
 	if (!temp)
-		error_type(INC_ARGS, (*asm_str)->nb);
-	if (g_op_tab[oper].arg_nb != n)
 		error_type(INC_ARGS, (*asm_str)->nb);
 }
 

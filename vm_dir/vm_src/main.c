@@ -79,7 +79,7 @@ int					main(int ac, char **av)
 	if (vm->visual_flag)
 	{
 		visualizer(vm);
-		system("afplay music/Rumble.mp3&");
+		system("afplay vm_dir/vm_src/music/Rumble.mp3");
 	}
 	else
 		players_intro(vm);

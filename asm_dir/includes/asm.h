@@ -66,13 +66,6 @@ struct						s_asm_str
 	t_asm_str				*prev;
 };
 
-union						u_rotate
-{
-	int						num;
-	char					buf2[2];
-	char					buf4[4];
-}							t_rotate;
-
 /*
 ******************************** MAIN FUNCTIONS ********************************
 */
@@ -91,6 +84,7 @@ int							ft_wordlen(char *str);
 char						*cut_content(char *str);
 char						is_empty_str(char *str);
 void						error_type(char *line, int nb);
+void						free_2d_array(char ***arr);
 
 /*
 ******************************** UTIL FUNCTIONS ********************************
