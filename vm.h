@@ -109,6 +109,7 @@ typedef struct		s_vm
 	WINDOW			*sidebar;
 	int				pause_flag;
 	int				speed;
+	int				players_order[MAX_PLAYERS];
 }					t_vm;
 
 void				parse_pl(char *av, t_vm *vm, unsigned int id, int pl_num);

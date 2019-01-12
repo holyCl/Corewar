@@ -12,27 +12,27 @@
 
 NAME = corewar
 
-SRCS = main.c \
-		players_parse.c \
-		parse_position_intro.c \
-		live_zjmp_aff_operations.c \
-		ld_operation.c \
-		ldi_operation.c \
-		lldi_operation.c \
-		sti_operation.c \
-		st_operation.c \
-		and_operation.c \
-		or_operation.c \
-		xor_operation.c \
-		add_sub_operations.c \
-		fork_n_lfork_operations.c \
-		useful_functions.c \
-		check_n_move.c \
-		check_pc_lives_n_kill.c \
-		are_u_ready_for_rumble.c \
-		dump_end_free_functions.c \
-		visualizer.c \
-		visualizer_print.c
+SRCS = vm_src/main.c \
+		vm_src/players_parse.c \
+		vm_src/parse_position_intro.c \
+		vm_src/live_zjmp_aff_operations.c \
+		vm_src/ld_operation.c \
+		vm_src/ldi_operation.c \
+		vm_src/lldi_operation.c \
+		vm_src/sti_operation.c \
+		vm_src/st_operation.c \
+		vm_src/and_operation.c \
+		vm_src/or_operation.c \
+		vm_src/xor_operation.c \
+		vm_src/add_sub_operations.c \
+		vm_src/fork_n_lfork_operations.c \
+		vm_src/useful_functions.c \
+		vm_src/check_n_move.c \
+		vm_src/check_pc_lives_n_kill.c \
+		vm_src/are_u_ready_for_rumble.c \
+		vm_src/dump_end_free_functions.c \
+		vm_src/visualizer.c \
+		vm_src/visualizer_print.c
 		
 
 OBJ =	$(SRCS:%.c=%.o)

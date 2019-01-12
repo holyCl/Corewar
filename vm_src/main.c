@@ -45,11 +45,19 @@ void				players_intro(t_vm *vm)
 
 void				vm_init(t_vm *vm)
 {
+	int				i;
+
+	i = 0;
 	ft_bzero(vm, sizeof(t_vm));
 	ft_bzero_int_arr(vm->pl_numbers, 4);
 	vm->cycles_to_die = CYCLE_TO_DIE;
 	vm->pause_flag = 1;
 	vm->speed = 1000;
+	while (i < MAX_PLAYERS)
+	{
+		vm->players_order[i] = i;
+		i++;
+	}
 }
 
 int					main(int ac, char **av)
