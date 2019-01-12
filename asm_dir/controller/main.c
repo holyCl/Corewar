@@ -46,6 +46,35 @@ int		ft_strlen_space(const char *str)
 	return (i);
 }
 
+
+int		record_label(int *i, char *src, t_asm_str **asm_str)
+{
+	int fl;
+	int a;
+
+	fl = 0;
+	a = *i;
+	while (src[a] != ' ' && src[a] != '\t' && src[a] != '\0')
+	{
+		if (src[a] == LABEL_CHAR)
+		{
+			if (src[a + 1] == LABEL_CHAR)
+				error_type(LEXIC, (*asm_str)->nb);
+			if (src[a + 1] != ' ' && src[a + 1] != '\t')
+				error_type(LEXIC, (*asm_str)->nb);
+			(*asm_str)->label = ft_strnew(a);
+			ft_strncpy((*asm_str)->label, src, a);
+			valid_label((*asm_str)->label, (*asm_str)->nb);
+			fl = 1;
+		}
+		if ((src[a + 1] == ' ' || src[a + 1] == '\t') && !fl)
+			fl = 2;
+		a++;
+	}
+	*i = a;
+	return (fl);
+}
+
 void	record_asm_str(char *src, t_asm_str **asm_str, int nb)
 {
 	int		i;
@@ -58,7 +87,6 @@ void	record_asm_str(char *src, t_asm_str **asm_str, int nb)
 	int		temp;
 	int		oper;
 
-	fl = 0;
 	temp = 0;
 	oper = 0;
 	i = 0;
@@ -66,23 +94,7 @@ void	record_asm_str(char *src, t_asm_str **asm_str, int nb)
 	(*asm_str)->nb = nb;
 	if (src[i] == LABEL_CHAR)
 		error_type(INC_LABELNAME, (*asm_str)->nb);
-	while (src[i] != ' ' && src[i] != '\t' && src[i] != '\0')
-	{
-		if (src[i] == LABEL_CHAR)
-		{
-			if (src[i + 1] == LABEL_CHAR)
-				error_type(LEXIC, (*asm_str)->nb);
-			if (src[i + 1] != ' ' && src[i + 1] != '\t')
-				error_type(LEXIC, (*asm_str)->nb);
-			(*asm_str)->label = ft_strnew(i);
-			ft_strncpy((*asm_str)->label, src, i);
-			valid_label((*asm_str)->label, (*asm_str)->nb);
-			fl = 1;
-		}
-		if ((src[i + 1] == ' ' || src[i + 1] == '\t') && !fl)
-			fl = 2;
-		i++;
-	}
+	fl = record_label(&i, src, asm_str);
 	i++;
 	i *= (fl == 2) ? 0 : 1;
 	while (src[i] == ' ' || src[i] == '\t')
