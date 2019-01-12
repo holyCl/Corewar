@@ -10,7 +10,7 @@
 #                                                                              #
 # **************************************************************************** #
 
-NAME = vm
+NAME = corewar
 
 SRCS = vm_src/main.c \
 		vm_src/players_parse.c \
