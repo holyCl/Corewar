@@ -41,7 +41,7 @@ SRC = main.c init.c op.c read.c handle_read_data.c\
 OBJ = $(SRC:.c=.o)
 
 # Colors constants
-include Colors.mk
+include ../Colors.mk
 
 .PHONY: all clean fclean
 
@@ -60,12 +60,11 @@ $(NAME): $(OBJ)
 	@make -C $(PRINTF_DIR)
 	@$(C) $(CFLAG) -o $(NAME) $(OBJ) $(LIBS)
 	@echo "$(GREEN)$(NAME) compilation is done$(RESET)"
-	@echo "$(BLUE)usage:$(RESET) ./$(NAME) champ.s"
 
 clean:
 	@make clean -C $(PRINTF_DIR)
 	@/bin/rm -f $(OBJ) *~
-	@echo "$(YELLOW)object files have been cleaned$(RESET)"
+	
 
 fclean: clean
 	@make fclean -C $(PRINTF_DIR)

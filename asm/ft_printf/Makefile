@@ -44,7 +44,6 @@ $(NAME): $(OBJ)
 	@cp $(LIB) $(NAME)
 	@ar rc $(NAME) $(OBJ)
 	@ranlib $(NAME)
-	@echo libftprintf.a is created
 
 clean:
 	@make clean -C $(LIBDIR)
@@ -53,6 +52,5 @@ clean:
 fclean: clean
 	@make fclean -C $(LIBDIR)
 	@/bin/rm -f $(NAME)
-	@echo libftprintf.a has been removed
 
 re: fclean all

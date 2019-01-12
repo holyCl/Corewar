@@ -10,7 +10,7 @@
 #                                                                              #
 # **************************************************************************** #
 
-NAME = corewar
+NAME = vm
 
 SRCS = vm_src/main.c \
 		vm_src/players_parse.c \
@@ -41,24 +41,27 @@ FLAGS = -Wall -Wextra -Werror
 
 HEADER = vm.h
 
-
+# Colors constants
+include ../Colors.mk
 
 all: $(NAME)
 
 %.o:%.c
-	gcc -I. $(FLAGS) -g -c $< -o $@ 
+	@gcc -I. $(FLAGS) -g -c $< -o $@ 
 
 $(NAME): $(OBJ) $(HEADER)
-	make -C libft
-	gcc $(FLAGS) $(OBJ) libft/libft.a -o $(NAME) -lncurses
+	@make -C libft
+	@gcc $(FLAGS) $(OBJ) libft/libft.a -o $(NAME) -lncurses
+	@echo "$(GREEN)$(NAME) compilation is done$(RESET)"
 
 clean:
-	make clean -C libft/
-	rm -f $(OBJ)
+	@make clean -C libft/
+	@rm -f $(OBJ)
 
 fclean: clean
-	make fclean -C libft/
-	rm -f libft.a
-	rm -f $(NAME)
+	@make fclean -C libft/
+	@rm -f libft.a
+	@rm -f $(NAME)
+	@echo "$(RED)$(NAME) has been removed$(RESET)"
 
 re: fclean all
