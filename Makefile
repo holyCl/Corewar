@@ -1,8 +1,12 @@
 NAME = corewar
 
-ASM_DIR = asm/
+ASM_NAME = asm
 
-VM_DIR = vm/
+VM_NAME = vm
+
+ASM_DIR = asm_dir/
+
+VM_DIR = vm_dir/
 
 all: $(NAME)
 
@@ -23,6 +27,7 @@ clean:
 fclean: clean
 	@make fclean -C $(ASM_DIR)
 	@make fclean -C $(VM_DIR)
+	@/bin/rm -f $(ASM_NAME) $(VM_NAME)
 	@echo "$(RED)$(NAME) has been removed$(RESET)"
 
 re: fclean all

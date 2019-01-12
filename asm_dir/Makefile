@@ -32,6 +32,8 @@ VIEW_DIR = view/
 
 MODEL_DIR = model/
 
+CORE_DIR = ../
+
 OBJ_DIR = obj/
 
 SRC = main.c init.c op.c read.c handle_read_data.c\
@@ -59,6 +61,7 @@ all: $(NAME)
 $(NAME): $(OBJ)
 	@make -C $(PRINTF_DIR)
 	@$(C) $(CFLAG) -o $(NAME) $(OBJ) $(LIBS)
+	@cp $(NAME) $(CORE_DIR)
 	@echo "$(GREEN)$(NAME) compilation is done$(RESET)"
 
 clean:

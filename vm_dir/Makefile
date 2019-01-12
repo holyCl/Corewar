@@ -37,6 +37,8 @@ SRCS = vm_src/main.c \
 
 OBJ =	$(SRCS:%.c=%.o)
 
+CORE_DIR = ../
+
 FLAGS = -Wall -Wextra -Werror 
 
 HEADER = vm.h
@@ -52,6 +54,7 @@ all: $(NAME)
 $(NAME): $(OBJ) $(HEADER)
 	@make -C libft
 	@gcc $(FLAGS) $(OBJ) libft/libft.a -o $(NAME) -lncurses
+	@cp $(NAME) $(CORE_DIR)
 	@echo "$(GREEN)$(NAME) compilation is done$(RESET)"
 
 clean:
