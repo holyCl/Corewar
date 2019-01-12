@@ -26,13 +26,11 @@ LIBS = -L ./ft_printf -lftprintf
 
 SRC_DIR = src/
 
-ASM_DIR = $(SRC_DIR)asm/
+CONTROLLER_DIR = controller/
 
-CONTROLLER_DIR = $(ASM_DIR)controller/
+VIEW_DIR = view/
 
-VIEW_DIR = $(ASM_DIR)view/
-
-MODEL_DIR = $(ASM_DIR)model/
+MODEL_DIR = model/
 
 OBJ_DIR = obj/
 
