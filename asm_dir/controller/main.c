@@ -70,7 +70,7 @@ int		record_label(int *i, char *src, t_asm_str **asm_str)
 			fl = 2;
 		a++;
 	}
-	*i = a;
+	*i = ++a;
 	return (fl);
 }
 
@@ -117,7 +117,7 @@ int		parse_args(char *src, t_asm_str **asm_str, int len, int *temp)
 		a++;
 		n++;
 	}
-	free_2d_array(&args);
+	free_2d_array(args);
 	return (n);
 }
 
@@ -143,38 +143,36 @@ int 	identify_operation(int len, char *src, t_asm_str **asm_str)
 	return (oper);
 }
 
+void	iterate_asm_str(t_asm_str **asm_str)
+{
+	(*asm_str)->codage = 1;
+	(*asm_str)->size += 1;
+}
+
 void	record_asm_str(char *src, t_asm_str **asm_str, int nb)
 {
-	int		i;
-	int		len;
-	int		fl;
-	int		temp;
-	int		oper;
+	t_ints s;
 
-	temp = 0;
-	i = 0;
+	s.temp = 0;
+	s.i = 0;
 	(*asm_str)->nb = nb;
-	if (src[i] == LABEL_CHAR)
+	if (src[s.i] == LABEL_CHAR)
 		error_type(INC_LABELNAME, (*asm_str)->nb);
-	fl = record_label(&i, src, asm_str);
-	i++;
-	i *= (fl == 2) ? 0 : 1;
-	while (src[i] == ' ' || src[i] == '\t')
-		i++;
-	len = ft_wordlen(&src[i]);
-	oper = identify_operation(len, &src[i], asm_str);
-	if (g_op_tab[oper].codage)
-	{
-		(*asm_str)->codage = 1;
-		(*asm_str)->size += 1;
-	}
-	(*asm_str)->label_size = g_op_tab[oper].label_size;
-	i += len + 1;
-	if (g_op_tab[oper].arg_nb != parse_args(&src[i], asm_str, len, &temp))
+	s.fl = record_label(&s.i, src, asm_str);
+	s.i *= (s.fl == 2) ? 0 : 1;
+	while (src[s.i] == ' ' || src[s.i] == '\t')
+		s.i++;
+	s.len = ft_wordlen(&src[s.i]);
+	s.oper = identify_operation(s.len, &src[s.i], asm_str);
+	if (g_op_tab[s.oper].codage)
+		iterate_asm_str(asm_str);
+	(*asm_str)->label_size = g_op_tab[s.oper].label_size;
+	s.i += s.len + 1;
+	if (g_op_tab[s.oper].arg_nb != parse_args(&src[s.i], asm_str, s.len, &s.temp))
 		error_type(INC_ARGS, (*asm_str)->nb);
-	if (oper == 17)
+	if (s.oper == 17)
 		error_type(OP_EXIST, (*asm_str)->nb);
-	if (!temp)
+	if (!s.temp)
 		error_type(INC_ARGS, (*asm_str)->nb);
 }
 
@@ -245,6 +243,28 @@ int		calculate_codage(t_asm_str *asm_str)
 	return (codage);
 }
 
+void	fill_in_cor_file(int fd_cor, t_asm_str *asm_str)
+{
+	int i;
+
+	i = -1;
+	while ((++i < 3) && asm_str->type_arg[i])
+	{
+		if (asm_str->type_arg[i] == REG_CODE)
+			write(fd_cor, &(asm_str->arg_cont[i]), REG_SIZE);
+		else if ((asm_str->type_arg[i] == IND_CODE) || asm_str->label_size == 2)
+		{
+			convert_endian_short((short *)&asm_str->arg_cont[i]);
+			write(fd_cor, &asm_str->arg_cont[i], 2);
+		}
+		else if (asm_str->type_arg[i] == DIR_CODE)
+		{
+			convert_endian(&asm_str->arg_cont[i]);
+			write(fd_cor, &asm_str->arg_cont[i], 4);
+		}
+	}
+}
+
 void	write_cor_file_instructions(int fd_cor, t_asm_str *asm_str)
 {
 	int		codage;
@@ -259,23 +279,9 @@ void	write_cor_file_instructions(int fd_cor, t_asm_str *asm_str)
 			codage = calculate_codage(asm_str);
 			write(fd_cor, &codage, 1);
 		}
+		fill_in_cor_file(fd_cor, asm_str);
 		i = -1;
-		while ((++i < 3) && asm_str->type_arg[i])
-		{
-			if (asm_str->type_arg[i] == REG_CODE)
-				write(fd_cor, &(asm_str->arg_cont[i]), REG_SIZE);
-			else if ((asm_str->type_arg[i] == IND_CODE) || \
-				asm_str->label_size == 2)
-			{
-				convert_endian_short((short *)&asm_str->arg_cont[i]);
-				write(fd_cor, &asm_str->arg_cont[i], 2);
-			}
-			else if (asm_str->type_arg[i] == DIR_CODE)
-			{
-				convert_endian(&asm_str->arg_cont[i]);
-				write(fd_cor, &asm_str->arg_cont[i], 4);
-			}
-		}
+		
 		asm_str = asm_str->next;
 	}
 }

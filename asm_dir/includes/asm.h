@@ -38,6 +38,7 @@
 */
 
 typedef struct s_asm		t_asm;
+typedef struct s_ints		t_ints;
 typedef struct s_asm_str	t_asm_str;
 
 /*
@@ -49,6 +50,15 @@ struct						s_asm
 	int						s_fd;
 	int						cor_fd;
 	char					*error_message;
+};
+
+struct 						s_ints
+{
+	int						i;
+	int						len;
+	int						fl;
+	int						temp;
+	int						oper;	
 };
 
 struct						s_asm_str
@@ -84,7 +94,7 @@ int							ft_wordlen(char *str);
 char						*cut_content(char *str);
 char						is_empty_str(char *str);
 void						error_type(char *line, int nb);
-void						free_2d_array(char ***arr);
+void						free_2d_array(char **arr);
 
 /*
 ******************************** UTIL FUNCTIONS ********************************
