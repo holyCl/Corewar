@@ -22,11 +22,9 @@
 ******************************** INTEGER CONSTANTS *****************************
 */
 
-
 # define REG_CODE				1
 # define DIR_CODE				2
 # define IND_CODE				3
-
 
 # define MAX_ARGS_NUMBER		4
 # define MAX_PLAYERS			4
@@ -54,24 +52,12 @@
 # define NBR_LIVE				21
 # define MAX_CHECKS				10
 
-/*
-**
-*/
-
 # define T_REG					1
 # define T_DIR					2
-# define T_IND					4	
-
-/*
-**
-*/
+# define T_IND					4
 
 # define REG_SIZE				1
 # define IND_SIZE				4
-
-/*
-**
-*/
 
 # define PROG_NAME_LENGTH		(128)
 # define COMMENT_LENGTH			(2048)
@@ -102,13 +88,13 @@
 */
 
 typedef struct s_op			t_op;
-typedef struct s_header 	t_header;
+typedef struct s_header		t_header;
 
 /*
 ****************************** STRUCTURES **************************************
 */
 
-struct 						s_op
+struct						s_op
 {
 	char					*name;
 	char					arg_nb;
@@ -118,7 +104,7 @@ struct 						s_op
 	char					*descr;
 	char					codage;
 	char					carry;
-	int 					label_size;
+	int						label_size;
 };
 
 struct						s_header
@@ -133,6 +119,6 @@ struct						s_header
 ****************************** DECLARATIONS ************************************
 */
 
-extern t_op    g_op_tab[17];
+extern	t_op				g_op_tab[17];
 
 #endif

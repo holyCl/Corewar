@@ -44,31 +44,31 @@ typedef struct s_asm_str	t_asm_str;
 ****************************** STRUCTURES **************************************
 */
 
-struct 						s_asm
+struct						s_asm
 {
-	int 					s_fd;
-	int 					cor_fd;
+	int						s_fd;
+	int						cor_fd;
 	char					*error_message;
 };
 
-struct 						s_asm_str
+struct						s_asm_str
 {
 	char					*label;
-	int 					label_size;
+	int						label_size;
 	int						op_code;
 	int						type_arg[3];
-	int	        			arg_cont[3];
-	char 					*pointer[3];
-	int 					codage;
-	int 					size;
-	int 					nb;
+	int						arg_cont[3];
+	char					*pointer[3];
+	int						codage;
+	int						size;
+	int						nb;
 	t_asm_str				*next;
 	t_asm_str				*prev;
 };
 
 union						u_rotate
 {
-	int 					num;
+	int						num;
 	char					buf2[2];
 	char					buf4[4];
 }							t_rotate;
@@ -77,33 +77,37 @@ union						u_rotate
 ******************************** MAIN FUNCTIONS ********************************
 */
 
-void	init(void *s);
-void	init_header(t_header *header);
-int		read_file(t_asm *a, t_header *header, t_asm_str **asm_str);
-int		validate_header(t_header *header);
-void	handle_read_data(t_header *header, t_asm_str **asm_str);
-void	find_labels_addresses(t_asm_str **asm_str);
-void	record_asm_str(char *src, t_asm_str **asm_str, int nb);
-int 	ft_wordlen(char *str);
-char	*cut_content(char *str);
-char	is_empty_str(char *str);
-void	error_type(char *line, int nb);
+void						init(void *s);
+void						init_header(t_header *header);
+int							read_file(t_asm *a, t_header *header, \
+							t_asm_str **asm_str);
+int							validate_header(t_header *header);
+void						handle_read_data(t_header *header, \
+							t_asm_str **asm_str);
+void						find_labels_addresses(t_asm_str **asm_str);
+void						record_asm_str(char *src, t_asm_str **asm_str, \
+							int nb);
+int							ft_wordlen(char *str);
+char						*cut_content(char *str);
+char						is_empty_str(char *str);
+void						error_type(char *line, int nb);
 
 /*
 ******************************** UTIL FUNCTIONS ********************************
 */
 
-void	calc_initial_size_before_arg(int *size_before_arg, t_asm_str *cur_str);
-void	add_to_size_before_arg(int *size_before_arg, t_asm_str *cur_str, int i);
+void						calc_initial_size_before_arg(int *size_before_arg, \
+							t_asm_str *cur_str);
+void						add_to_size_before_arg(int *size_before_arg, \
+							t_asm_str *cur_str, int i);
 
-
-int		exit_with_error(t_asm *a, char **line, char *error_message);
-
+int							exit_with_error(t_asm *a, char **line, \
+							char *error_message);
 
 /*
 ******************************** VIEW FUNCTIONS ********************************
 */
 
-void	display_error_message(char *message);
+void						display_error_message(char *message);
 
 #endif
