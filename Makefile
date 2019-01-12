@@ -16,7 +16,8 @@ include Colors.mk
 $(NAME):
 	@make -C $(ASM_DIR)
 	@make -C $(VM_DIR)
-	@echo "$(BLUE)usage:$(RESET) ./$(NAME) champ.s"
+	@echo "$(BLUE)usage:$(RESET) ./$(ASM_NAME) champs/[champ_name].s"
+	@echo "       ./$(VM_NAME) champs/[champ_name].cor"
 
 clean:
 	@make clean -C $(ASM_DIR)
