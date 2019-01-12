@@ -38,14 +38,13 @@ void	valid_label(char *asm_str, int nb)
 
 int		ft_strlen_space(const char *str)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (str[i] && str[i] != ' ' && str[i] != '\t')
 		i++;
 	return (i);
 }
-
 
 int		record_label(int *i, char *src, t_asm_str **asm_str)
 {
@@ -243,17 +242,11 @@ void	write_cor_file_instructions(int fd_cor, t_asm_str *asm_str)
 			codage = calculate_codage(asm_str);
 			write(fd_cor, &codage, 1);
 		}
-		t_rotate.num = 0;
-		t_rotate.num = asm_str->arg_cont[i];
-		i = 0;
-		while ((i < 3) && asm_str->type_arg[i])
+		i = -1;
+		while ((++i < 3) && asm_str->type_arg[i])
 		{
-			t_rotate.num = 0;
-			t_rotate.num = asm_str->arg_cont[i];
 			if (asm_str->type_arg[i] == REG_CODE)
-			{
 				write(fd_cor, &(asm_str->arg_cont[i]), REG_SIZE);
-			}
 			else if ((asm_str->type_arg[i] == IND_CODE) || \
 				asm_str->label_size == 2)
 			{
@@ -265,7 +258,6 @@ void	write_cor_file_instructions(int fd_cor, t_asm_str *asm_str)
 				convert_endian(&asm_str->arg_cont[i]);
 				write(fd_cor, &asm_str->arg_cont[i], 4);
 			}
-			i++;
 		}
 		asm_str = asm_str->next;
 	}
