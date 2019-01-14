@@ -52,13 +52,13 @@ struct						s_asm
 	char					*error_message;
 };
 
-struct 						s_ints
+struct						s_ints
 {
 	int						i;
 	int						len;
 	int						fl;
 	int						temp;
-	int						oper;	
+	int						oper;
 };
 
 struct						s_asm_str
@@ -93,9 +93,22 @@ void						record_asm_str(char *src, t_asm_str **asm_str, \
 int							ft_wordlen(char *str);
 char						*cut_content(char *str);
 char						is_empty_str(char *str);
-void						error_type(char *line, int nb);
+void						error_type(char *line, int nb, char *src);
 void						free_2d_array(char **arr);
-
+int							identify_operation(int len, char *src, \
+							t_asm_str **asm_str);
+void						write_cor_file_instructions(int fd_cor, \
+							t_asm_str *asm_str);
+void						write_cor_file_header(int fd_cor, t_header *header);
+void						write_cor_file(char *file_name_s, \
+							t_header *header, t_asm_str **asm_str);
+void						fill_in_cor_file(int fd_cor, t_asm_str *asm_str);
+char						*substitute_extention(char *src, char *new_ext);
+void						valid_label(char *asm_str, int nb, char *src);
+int							parse_args(char *src, t_asm_str **asm_str, \
+							int len, int *temp);
+int							record_arg_type(char arg_char, \
+							t_asm_str **asm_str, int a);
 /*
 ******************************** UTIL FUNCTIONS ********************************
 */
@@ -107,6 +120,12 @@ void						add_to_size_before_arg(int *size_before_arg, \
 
 int							exit_with_error(t_asm *a, char **line, \
 							char *error_message);
+int							ft_strlen_space(const char *str);
+void						iterate_asm_str(t_asm_str **asm_str);
+int							open_file(char *file);
+void						convert_endian(int *value);
+void						convert_endian_short(short *num);
+int							calculate_codage(t_asm_str *asm_str);
 
 /*
 ******************************** VIEW FUNCTIONS ********************************

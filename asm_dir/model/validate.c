@@ -18,3 +18,15 @@ int		validate_header(t_header *header)
 		return (ERROR);
 	return (OK);
 }
+
+void	valid_label(char *asm_str, int nb, char *src)
+{
+	int i;
+
+	i = -1;
+	while (asm_str[++i])
+	{
+		if (!ft_strchr(LABEL_CHARS, asm_str[i]))
+			error_type(INC_LABELNAME, nb, src);
+	}
+}

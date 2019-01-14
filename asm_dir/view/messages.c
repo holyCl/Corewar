@@ -18,9 +18,10 @@ void	display_error_message(char *message)
 	ft_putchar('\n');
 }
 
-void	error_type(char *line, int nb)
+void	error_type(char *line, int nb, char *src)
 {
 	ft_putstr(line);
+	ft_strdel(&src);
 	ft_printf(" in line %d\n", nb);
 	exit(1);
 }

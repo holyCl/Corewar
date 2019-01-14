@@ -12,36 +12,6 @@
 
 #include "corewar.h"
 
-int		count_char_occur(char *str, char c)
-{
-	int		nb;
-
-	nb = 0;
-	while (*str)
-	{
-		if (*str == c)
-			nb++;
-		str++;
-	}
-	return (nb);
-}
-
-char	*cut_content(char *str)
-{
-	char	*str_end;
-
-	if ((str = ft_strchr(str, '"')) == NULL)
-		return (NULL);
-	++str;
-	if ((str_end = ft_strchr(str, '"')) == NULL)
-		return (NULL);
-	++str_end;
-	if (!is_empty_str(str_end))
-		return (NULL);
-	str[ft_strlen(str) - 1] = '\0';
-	return (str);
-}
-
 int		read_header_2(t_asm *a, char **cont, char **line, t_header *header)
 {
 	int		i;

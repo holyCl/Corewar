@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "op.h"
+#include "corewar.h"
 
 t_op	g_op_tab[17] =
 {
@@ -38,3 +39,25 @@ t_op	g_op_tab[17] =
 	{"aff", 1, {T_REG}, 16, 2, "aff", 1, 0, 4},
 	{0, 0, {0}, 0, 0, 0, 0, 0, 0}
 };
+
+int			identify_operation(int len, char *src, t_asm_str **asm_str)
+{
+	int		oper;
+	char	*op;
+
+	oper = 0;
+	op = ft_strnew(len);
+	ft_strncpy(op, src, len);
+	while (oper < 17)
+	{
+		if (ft_strcmp(g_op_tab[oper].name, op) == EQUAL)
+		{
+			(*asm_str)->op_code = g_op_tab[oper].op_code;
+			(*asm_str)->size = 1;
+			break ;
+		}
+		oper++;
+	}
+	ft_strdel(&op);
+	return (oper);
+}

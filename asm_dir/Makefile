@@ -38,7 +38,8 @@ OBJ_DIR = obj/
 
 SRC = main.c init.c op.c read.c handle_read_data.c\
 	find_labels_addresses.c util.c messages.c\
-	validate.c free.c
+	validate.c free.c read_util.c write_cor.c\
+	record.c parse.c 
 
 OBJ = $(SRC:.c=.o)
 

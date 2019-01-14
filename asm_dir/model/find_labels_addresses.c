@@ -64,7 +64,10 @@ void		calc_pointer_value(t_asm_str **str, t_asm_str **cur_str, int i)
 
 	label_str = search_label(str, (*cur_str)->pointer[i]);
 	if (!label_str)
-		error_type(INC_LABELNAME, (*str)->nb);
+	{
+		display_error_message(INC_LABELNAME);
+		exit(1);
+	}
 	if (label_str->nb - (*cur_str)->nb > 0)
 	{
 		(*cur_str)->arg_cont[i] =
