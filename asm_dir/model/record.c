@@ -69,6 +69,7 @@ void	record_asm_str(char *src, t_asm_str **asm_str, int nb)
 	if (src[s.i] == LABEL_CHAR)
 		error_type(INC_LABELNAME, (*asm_str)->nb, src);
 	s.fl = record_label(&s.i, src, asm_str);
+	s.i++;
 	s.i *= (s.fl == 2) ? 0 : 1;
 	while (src[s.i] == ' ' || src[s.i] == '\t')
 		s.i++;

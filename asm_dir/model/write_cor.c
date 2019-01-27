@@ -15,7 +15,6 @@
 void	write_cor_file_instructions(int fd_cor, t_asm_str *asm_str)
 {
 	int		codage;
-	int		i;
 
 	while (asm_str)
 	{
@@ -27,7 +26,6 @@ void	write_cor_file_instructions(int fd_cor, t_asm_str *asm_str)
 			write(fd_cor, &codage, 1);
 		}
 		fill_in_cor_file(fd_cor, asm_str);
-		i = -1;
 		asm_str = asm_str->next;
 	}
 }
