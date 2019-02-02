@@ -12,35 +12,35 @@
 
 #include "corewar.h"
 
-int		read_header_2(t_asm *a, char **cont, char **line, t_header *header)
+int		read_header_2(t_asm *a, char **line, t_header *header)
 {
 	int		i;
+	char	*cont;
 
 	i = -1;
 	if (ft_strnequ(*line, NAME_CMD_STRING, 5))
 	{
 		if (header->prog_name[0] != '\0')
 			return (exit_with_error(a, line, NAME_REDEFINE));
-		if ((*cont = cut_content(*line)) == NULL)
+		if ((cont = cut_content(*line)) == NULL)
 			return (exit_with_error(a, line, SYNT_ERR_N));
-		while (*cont[++i])
-			header->prog_name[i] = *cont[i];
+		while (cont[++i])
+			header->prog_name[i] = cont[i];
 	}
 	else if (ft_strnequ(*line, COMMENT_CMD_STRING, 8))
 	{
 		if (header->comment[0] != '\0')
 			return (exit_with_error(a, line, COMM_REDEFINE));
-		if ((*cont = cut_content(*line)) == NULL)
+		if ((cont = cut_content(*line)) == NULL)
 			return (exit_with_error(a, line, SYNT_ERR_C));
-		while (*cont[++i])
-			header->comment[i] = *cont[i];
+		while (cont[++i])
+			header->comment[i] = cont[i];
 	}
 	return (OK);
 }
 
 int		read_header(t_asm *a, t_header *header, char **line, int *count)
 {
-	char	*cont;
 	int		flag;
 
 	flag = FALSE;
@@ -51,7 +51,7 @@ int		read_header(t_asm *a, t_header *header, char **line, int *count)
 			flag = TRUE;
 			break ;
 		}
-		if (read_header_2(a, &cont, line, header) == ERROR)
+		if (read_header_2(a, line, header) == ERROR)
 			return (ERROR);
 		ft_strdel(line);
 		(*count) += 1;

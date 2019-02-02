@@ -53,6 +53,7 @@ void	fill_in_cor_file(int fd_cor, t_asm_str *asm_str)
 			convert_endian(&asm_str->arg_cont[i]);
 			write(fd_cor, &asm_str->arg_cont[i], 4);
 		}
+		i++;
 	}
 }
 
